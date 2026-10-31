@@ -1,7 +1,7 @@
 from datetime import datetime, date, timedelta, timezone
 from sqlalchemy.orm import Session
 from app.models.user import Department, Role, Permission, User, AuditEvent
-from app.models.domain import Zone, Vendor, Project, WorkPackage, Milestone, Inspection, Defect, Asset
+from app.models.domain import Zone, Vendor, Project, WorkPackage, Milestone, Inspection, Defect, Asset, ProgressSubmission
 from app.core.security import get_password_hash
 from app.services.audit_service import record_audit_event
 
@@ -235,7 +235,12 @@ VENDORS_DATA = [
         "email": "vendor@infra-ap.com",
         "phone": "+91 883 2460005",
         "contract_reference": "CTR/2026/AP-PWD/089",
-        "status": "Active"
+        "status": "Active",
+        "contract_start_date": date(2026, 1, 15),
+        "contract_end_date": date(2027, 8, 31),
+        "compliance_status": "Compliant",
+        "compliance_document_ref": "ISO-9001-AP-089-2026",
+        "compliance_document_expiry": date(2027, 12, 31),
     },
     {
         "id": "vnd-002",
@@ -246,7 +251,12 @@ VENDORS_DATA = [
         "email": "contact@deltawater.in",
         "phone": "+91 883 2460022",
         "contract_reference": "CTR/2026/AP-WTR/104",
-        "status": "Active"
+        "status": "Active",
+        "contract_start_date": date(2026, 2, 1),
+        "contract_end_date": date(2027, 7, 31),
+        "compliance_status": "Compliant",
+        "compliance_document_ref": "WQA-GOLD-CERT-AP-104",
+        "compliance_document_expiry": date(2027, 10, 15),
     },
     {
         "id": "vnd-003",
@@ -257,7 +267,12 @@ VENDORS_DATA = [
         "email": "ops@andhrasanitech.in",
         "phone": "+91 883 2460033",
         "contract_reference": "CTR/2026/AP-SANI/210",
-        "status": "Active"
+        "status": "Active",
+        "contract_start_date": date(2026, 2, 15),
+        "contract_end_date": date(2027, 8, 15),
+        "compliance_status": "Compliant",
+        "compliance_document_ref": "PCB-AP-SANI-210-ENV",
+        "compliance_document_expiry": date(2027, 9, 30),
     },
     {
         "id": "vnd-004",
@@ -268,9 +283,15 @@ VENDORS_DATA = [
         "email": "projects@easterngrid.in",
         "phone": "+91 883 2460044",
         "contract_reference": "CTR/2026/AP-ELEC/315",
-        "status": "Active"
+        "status": "Active",
+        "contract_start_date": date(2026, 3, 1),
+        "contract_end_date": date(2027, 6, 30),
+        "compliance_status": "Renewal Due",
+        "compliance_document_ref": "CEA-SAFETY-AP-315-CERT",
+        "compliance_document_expiry": date(2026, 11, 20),
     }
 ]
+
 
 
 def run_seed_if_empty(db: Session):
@@ -713,7 +734,56 @@ def run_seed_if_empty(db: Session):
             db.add(Asset(**ad))
     db.commit()
 
+    # Progress Submissions (Module 4)
+    submissions_data = [
+        {
+            "id": "sub-001",
+            "submission_code": "SUB-2027-0001",
+            "work_package_id": "wp-001",
+            "vendor_id": "vnd-001",
+            "submitted_by_id": "user-vendor",
+            "progress_percentage": 45.0,
+            "activities_description": "Completed foundation excavation and cast bottom slab for 50kL water sump tank at Kotilingala Ghat.",
+            "delay_or_blocker": None,
+            "estimated_completion_date": date(2027, 2, 28),
+            "evidence_attachments": [
+                {"name": "Kotilingala_Foundation_Pour_Cert.pdf", "type": "pdf", "size_kb": 1420},
+                {"name": "Rebar_Inspection_Site_Photo.jpg", "type": "image", "size_kb": 2840}
+            ],
+            "review_status": "Reviewed",
+            "reviewer_id": "user-pm",
+            "reviewer_notes": "Foundation depth and bottom slab grade verified on site by Executive Engineer. Work aligns with approved DPR drawings.",
+            "reviewed_at": datetime.now(timezone.utc) - timedelta(days=2),
+            "created_at": datetime.now(timezone.utc) - timedelta(days=3),
+        },
+        {
+            "id": "sub-002",
+            "submission_code": "SUB-2027-0002",
+            "work_package_id": "wp-002",
+            "vendor_id": "vnd-001",
+            "submitted_by_id": "user-vendor",
+            "progress_percentage": 20.0,
+            "activities_description": "Fabrication of 8 stainless steel multi-spigot dispensing kiosks completed in factory; 2 units transported to Kotilingala site.",
+            "delay_or_blocker": "Intermittent supply chain delay in receiving food-grade 316-SS fittings from Hyderabad distributor.",
+            "estimated_completion_date": date(2027, 4, 15),
+            "evidence_attachments": [
+                {"name": "Factory_Fabrication_Report.pdf", "type": "pdf", "size_kb": 980}
+            ],
+            "review_status": "Under Review",
+            "reviewer_id": None,
+            "reviewer_notes": None,
+            "reviewed_at": None,
+            "created_at": datetime.now(timezone.utc) - timedelta(hours=6),
+        }
+    ]
+
+    for sd in submissions_data:
+        if not db.query(ProgressSubmission).filter(ProgressSubmission.id == sd["id"]).first():
+            db.add(ProgressSubmission(**sd))
+    db.commit()
+
     print("--- Pushkaralu 2027 domain data seeded successfully! ---")
+
 
 
 if __name__ == "__main__":

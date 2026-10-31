@@ -38,10 +38,16 @@ export const AppLayout: React.FC = () => {
     navigate('/login');
   };
 
+  const isVendor = hasRole('vendor');
+
   const navItems = [
     { name: 'Executive Overview', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Projects & Works', path: '/projects', icon: FolderGit2 },
-    { name: 'Vendors', path: '/vendors', icon: Building2 },
+    {
+      name: isVendor ? 'Contractor Portal' : 'Contractors & Vendors',
+      path: isVendor ? '/vendors/me' : '/vendors',
+      icon: Building2,
+    },
     { name: 'Field Verification', path: '/inspections', icon: ClipboardCheck },
     { name: 'Defects & Rework', path: '/defects', icon: AlertTriangle },
     { name: 'Asset Registry & QR', path: '/assets', icon: QrCode },

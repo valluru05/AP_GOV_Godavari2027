@@ -12,6 +12,8 @@ import { UsersPage } from './features/administration/UsersPage';
 import { AuditExplorerPage } from './features/audit/AuditExplorerPage';
 import { ProjectListPage } from './features/projects/ProjectListPage';
 import { ProjectDetailPage } from './features/projects/ProjectDetailPage';
+import { VendorListPage } from './features/vendors/VendorListPage';
+import { VendorDashboardPage } from './features/vendors/VendorDashboardPage';
 import { ModulePlaceholderPage } from './components/layout/ModulePlaceholderPage';
 
 const queryClient = new QueryClient();
@@ -58,16 +60,11 @@ export const App: React.FC = () => {
               {/* Module 3 Project and Work Register */}
               <Route path="/projects" element={<ProjectListPage />} />
               <Route path="/projects/:id" element={<ProjectDetailPage />} />
-              <Route
-                path="/vendors"
-                element={
-                  <ModulePlaceholderPage
-                    moduleNumber={4}
-                    moduleTitle="Vendor & Service-Provider Management"
-                    description="Vendor portal, progress update submissions, and compliance tracking."
-                  />
-                }
-              />
+              {/* Module 4 Vendor & Service-Provider Management */}
+              <Route path="/vendors" element={<VendorListPage />} />
+              <Route path="/vendors/:id" element={<VendorDashboardPage />} />
+              <Route path="/vendor-portal" element={<VendorDashboardPage />} />
+
               <Route
                 path="/inspections"
                 element={

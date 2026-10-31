@@ -1,4 +1,12 @@
 import type { User, TokenResponse, Department, Role, AuditEvent } from '../types/auth';
+import type {
+  Vendor,
+  VendorDashboardData,
+  ProgressSubmission,
+  ProgressSubmissionCreate,
+  SubmissionReviewRequest
+} from '../types/vendor';
+
 
 const API_BASE = '/api/v1';
 
@@ -292,6 +300,66 @@ class ApiClient {
   exportProjectsCsvUrl(): string {
     return `${API_BASE}/projects/export/csv`;
   }
+
+  // --- Vendor & Progress Submission APIs (Module 4) ---
+  async getVendors(params?: { search?: string; status?: string; category?: string }): Promise<Vendor[]> {
+    const q = new URLSearchParams();
+    if (params?.search) q.append('search', params.search);
+    if (params?.status) q.append('status', params.status);
+    if (params?.category) q.append('category', params.category);
+    const query = q.toString() ? `?${q.toString()}` : '';
+    return this.request<Vendor[]>(`/vendors${query}`);
+  }
+
+  async getVendorById(id: string): Promise<Vendor> {
+    return this.request<Vendor>(`/vendors/${id}`);
+  }
+
+  async registerVendor(payload: any): Promise<Vendor> {
+    return this.request<Vendor>('/vendors', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async updateVendor(id: string, payload: any): Promise<Vendor> {
+    return this.request<Vendor>(`/vendors/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getVendorDashboard(id: string): Promise<VendorDashboardData> {
+    return this.request<VendorDashboardData>(`/vendors/${id}/dashboard`);
+  }
+
+  async getMyVendorDashboard(): Promise<VendorDashboardData> {
+    return this.request<VendorDashboardData>('/vendors/me/dashboard');
+  }
+
+  async getProgressSubmissions(params?: { work_package_id?: string; vendor_id?: string; review_status?: string }): Promise<ProgressSubmission[]> {
+    const q = new URLSearchParams();
+    if (params?.work_package_id) q.append('work_package_id', params.work_package_id);
+    if (params?.vendor_id) q.append('vendor_id', params.vendor_id);
+    if (params?.review_status) q.append('review_status', params.review_status);
+    const query = q.toString() ? `?${q.toString()}` : '';
+    return this.request<ProgressSubmission[]>(`/vendors/progress-submissions${query}`);
+  }
+
+  async submitProgress(payload: ProgressSubmissionCreate): Promise<ProgressSubmission> {
+    return this.request<ProgressSubmission>('/vendors/progress-submissions', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async reviewProgressSubmission(id: string, payload: SubmissionReviewRequest): Promise<ProgressSubmission> {
+    return this.request<ProgressSubmission>(`/vendors/progress-submissions/${id}/review`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  }
 }
 
 export const api = new ApiClient();
+

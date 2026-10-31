@@ -42,9 +42,16 @@ class Vendor(Base):
     phone: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     contract_reference: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     status: Mapped[str] = mapped_column(String(50), default="Active")  # Active | Suspended | Under Review
+    contract_start_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+    contract_end_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+    compliance_status: Mapped[str] = mapped_column(String(50), default="Compliant")  # Compliant | Renewal Due | Suspended
+    compliance_document_ref: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    compliance_document_expiry: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now, onupdate=get_utc_now)
 
     work_packages: Mapped[List["WorkPackage"]] = relationship("WorkPackage", back_populates="vendor")
+    progress_submissions: Mapped[List["ProgressSubmission"]] = relationship("ProgressSubmission", back_populates="vendor")
 
 
 class Project(Base):
@@ -93,15 +100,11 @@ class WorkPackage(Base):
     # Critical distinction: Reported vs Verified
     reported_progress_percentage: Mapped[float] = mapped_column(Float, default=0.0)
     verified_progress_percentage: Mapped[float] = mapped_column(Float, default=0.0)
-    
-    # Work statuses: Draft, Planned, Assigned, In Progress, Progress Reported, Inspection Pending,
-    # Verification Failed, Rework Required, Verification Passed, Awaiting Authorised Acceptance,
-    # Accepted, Operationally Ready, On Hold, Cancelled
     workflow_state: Mapped[str] = mapped_column(String(60), default="In Progress", index=True)
     
     # Rule-based Risk attributes
-    risk_score: Mapped[int] = mapped_column(Integer, default=0)  # 0 to 100
-    risk_category: Mapped[str] = mapped_column(String(30), default="Low")  # Critical | High | Moderate | Low
+    risk_score: Mapped[int] = mapped_column(Integer, default=0)
+    risk_category: Mapped[str] = mapped_column(String(30), default="Low")
     risk_explanation: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
@@ -113,6 +116,34 @@ class WorkPackage(Base):
     inspections: Mapped[List["Inspection"]] = relationship("Inspection", back_populates="work_package", cascade="all, delete-orphan", lazy="joined")
     defects: Mapped[List["Defect"]] = relationship("Defect", back_populates="work_package", cascade="all, delete-orphan", lazy="joined")
     assets: Mapped[List["Asset"]] = relationship("Asset", back_populates="work_package", lazy="joined")
+    progress_submissions: Mapped[List["ProgressSubmission"]] = relationship("ProgressSubmission", back_populates="work_package", cascade="all, delete-orphan")
+
+
+class ProgressSubmission(Base):
+    __tablename__ = "progress_submissions"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    submission_code: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
+    work_package_id: Mapped[str] = mapped_column(String(36), ForeignKey("work_packages.id"), index=True, nullable=False)
+    vendor_id: Mapped[str] = mapped_column(String(36), ForeignKey("vendors.id"), index=True, nullable=False)
+    submitted_by_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
+    
+    progress_percentage: Mapped[float] = mapped_column(Float, nullable=False)
+    activities_description: Mapped[str] = mapped_column(Text, nullable=False)
+    delay_or_blocker: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    estimated_completion_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+    evidence_attachments: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSON, default=list)
+    
+    # Review workflow states: Under Review | Reviewed | Rejected | Superseded
+    review_status: Mapped[str] = mapped_column(String(50), default="Under Review", index=True)
+    reviewer_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
+    reviewer_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    reviewed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
+
+    work_package: Mapped[WorkPackage] = relationship("WorkPackage", back_populates="progress_submissions")
+    vendor: Mapped[Vendor] = relationship("Vendor", back_populates="progress_submissions")
 
 
 class Milestone(Base):
@@ -129,8 +160,8 @@ class Milestone(Base):
     responsible_party: Mapped[Optional[str]] = mapped_column(String(150), nullable=True)
     
     # State tracking
-    reported_status: Mapped[str] = mapped_column(String(50), default="Pending")  # Pending | Reported Complete
-    verification_status: Mapped[str] = mapped_column(String(50), default="Unverified")  # Unverified | Verified | Rejected
+    reported_status: Mapped[str] = mapped_column(String(50), default="Pending")
+    verification_status: Mapped[str] = mapped_column(String(50), default="Unverified")
     completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     verification_timestamp: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     
@@ -138,7 +169,7 @@ class Milestone(Base):
 
     work_package: Mapped[WorkPackage] = relationship("WorkPackage", back_populates="milestones")
     
-    # Milestone dependencies (directed relationship: milestones that this milestone depends on)
+    # Milestone dependencies
     dependencies: Mapped[List["Milestone"]] = relationship(
         "Milestone",
         secondary=milestone_dependencies,
@@ -161,7 +192,6 @@ class Inspection(Base):
     inspection_type: Mapped[str] = mapped_column(String(80), default="Routine Verification")
     checklist_version: Mapped[str] = mapped_column(String(20), default="v1.0")
     
-    # Outcomes: Scheduled | In Progress | Passed | Failed | Re-Inspection Required
     outcome: Mapped[str] = mapped_column(String(50), default="Scheduled", index=True)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     reviewer_decision: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
@@ -181,9 +211,7 @@ class Defect(Base):
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[Text] = mapped_column(Text, nullable=False)
     category: Mapped[str] = mapped_column(String(100), default="Quality & Safety")
-    severity: Mapped[str] = mapped_column(String(30), default="High", index=True)  # Critical | High | Medium | Low
-    
-    # Statuses: Open | Assigned | Correction Submitted | Verification Pending | Rejected | Resolved | Closed
+    severity: Mapped[str] = mapped_column(String(30), default="High", index=True)
     status: Mapped[str] = mapped_column(String(50), default="Open", index=True)
     target_resolution_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     reported_by_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
@@ -203,15 +231,12 @@ class Asset(Base):
     zone_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("zones.id"), nullable=True)
     project_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("projects.id"), nullable=True)
     work_package_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("work_packages.id"), nullable=True)
-    
-    # Lifecycle: Planned | Installed | Inspection Pending | Verification Failed | Accepted | Operationally Ready | Maintenance Required
     lifecycle_status: Mapped[str] = mapped_column(String(60), default="Planned", index=True)
     qr_identifier: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
     installation_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     commissioning_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     latitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     longitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
-    
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
 
     zone: Mapped[Optional[Zone]] = relationship("Zone", back_populates="assets", lazy="joined")
