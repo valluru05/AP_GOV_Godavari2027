@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+env/
+venv/
+*.db
+*.sqlite3
+
+# Node / Vite
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.DS_Store
+*.local
+.env
+
+# Testing / Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local Storage
+data/storage/

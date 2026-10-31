@@ -1,0 +1,158 @@
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider } from './context/AuthContext';
+import { AppLayout } from './components/layout/AppLayout';
+import { ProtectedRoute } from './components/layout/ProtectedRoute';
+import { LoginPage } from './features/auth/LoginPage';
+import { UnauthorizedPage } from './features/auth/UnauthorizedPage';
+import { NotFoundPage } from './features/auth/NotFoundPage';
+import { DashboardPage } from './features/dashboard/DashboardPage';
+import { UsersPage } from './features/administration/UsersPage';
+import { AuditExplorerPage } from './features/audit/AuditExplorerPage';
+import { ModulePlaceholderPage } from './components/layout/ModulePlaceholderPage';
+
+const queryClient = new QueryClient();
+
+export const App: React.FC = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public authentication pages */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+            {/* Authenticated Application routes */}
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+
+              {/* Module 1 Administration & Security */}
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute requiredPermission="users:read">
+                    <UsersPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/audit"
+                element={
+                  <ProtectedRoute requiredPermission="audit:read">
+                    <AuditExplorerPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Subsequent Modules */}
+              <Route
+                path="/projects"
+                element={
+                  <ModulePlaceholderPage
+                    moduleNumber={3}
+                    moduleTitle="Project & Work Register"
+                    description="Work packages, milestones, dependencies, and reported vs verified status management."
+                  />
+                }
+              />
+              <Route
+                path="/vendors"
+                element={
+                  <ModulePlaceholderPage
+                    moduleNumber={4}
+                    moduleTitle="Vendor & Service-Provider Management"
+                    description="Vendor portal, progress update submissions, and compliance tracking."
+                  />
+                }
+              />
+              <Route
+                path="/inspections"
+                element={
+                  <ModulePlaceholderPage
+                    moduleNumber={5}
+                    moduleTitle="Field Verification & Mobile Inspections"
+                    description="Configurable checklist execution, evidence uploads, measurements, and pass/fail verdicts."
+                  />
+                }
+              />
+              <Route
+                path="/defects"
+                element={
+                  <ModulePlaceholderPage
+                    moduleNumber={6}
+                    moduleTitle="Defects, Corrective Action, & Rework"
+                    description="Defect logging, vendor rework submissions, re-inspection verification, and closure."
+                  />
+                }
+              />
+              <Route
+                path="/assets"
+                element={
+                  <ModulePlaceholderPage
+                    moduleNumber={7}
+                    moduleTitle="Municipal Asset Registry & QR Traceability"
+                    description="Asset inventory, QR label generation, camera QR scanning, and physical readiness status."
+                  />
+                }
+              />
+              <Route
+                path="/readiness"
+                element={
+                  <ModulePlaceholderPage
+                    moduleNumber={8}
+                    moduleTitle="Verified Readiness Chain & Risk Engine"
+                    description="End-to-end audit chain and explainable rule-based risk evaluation (0-100 score)."
+                  />
+                }
+              />
+              <Route
+                path="/map"
+                element={
+                  <ModulePlaceholderPage
+                    moduleNumber={10}
+                    moduleTitle="Geographic Map & Zone Monitoring"
+                    description="Interactive Leaflet map showing Rajamahendravaram ghats, assets, and works."
+                  />
+                }
+              />
+              <Route
+                path="/reports"
+                element={
+                  <ModulePlaceholderPage
+                    moduleNumber={12}
+                    moduleTitle="Reports, Exports, & Analytics"
+                    description="Custom filters, CSV exports, and printable PDF executive briefings."
+                  />
+                }
+              />
+              <Route
+                path="/my-tasks"
+                element={
+                  <ModulePlaceholderPage
+                    moduleNumber={13}
+                    moduleTitle="My Tasks & Action Queue"
+                    description="Personalized task list for assigned inspections, reviews, and overdue items."
+                  />
+                }
+              />
+            </Route>
+
+            {/* 404 Route */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+};
+
+export default App;
