@@ -1,10 +1,18 @@
 from datetime import datetime, date
 from typing import List, Optional, Dict, Any
 from sqlalchemy import (
-    String, Boolean, DateTime, Date, Integer, Float, ForeignKey, Text, JSON
+    String, Boolean, DateTime, Date, Integer, Float, ForeignKey, Text, JSON, Table, Column
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base, generate_uuid, get_utc_now
+
+# Milestone dependency directed graph relationship (milestone_id depends on depends_on_id)
+milestone_dependencies = Table(
+    "milestone_dependencies",
+    Base.metadata,
+    Column("milestone_id", String(36), ForeignKey("milestones.id", ondelete="CASCADE"), primary_key=True),
+    Column("depends_on_id", String(36), ForeignKey("milestones.id", ondelete="CASCADE"), primary_key=True),
+)
 
 
 class Zone(Base):
@@ -50,16 +58,19 @@ class Project(Base):
     zone_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("zones.id"), nullable=True)
     department_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("departments.id"), nullable=True)
     project_manager_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
+    created_by_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
     start_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     planned_completion_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     current_status: Mapped[str] = mapped_column(String(50), default="In Progress", index=True)
     priority: Mapped[str] = mapped_column(String(30), default="High")  # Critical | High | Medium | Low
     funding_reference: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    latitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    longitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now, onupdate=get_utc_now)
 
     zone: Mapped[Optional[Zone]] = relationship("Zone", back_populates="projects", lazy="joined")
-    work_packages: Mapped[List["WorkPackage"]] = relationship("WorkPackage", back_populates="project", cascade="all, delete-orphan")
+    work_packages: Mapped[List["WorkPackage"]] = relationship("WorkPackage", back_populates="project", cascade="all, delete-orphan", lazy="joined")
     assets: Mapped[List["Asset"]] = relationship("Asset", back_populates="project")
 
 
@@ -73,6 +84,7 @@ class WorkPackage(Base):
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     category: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
     vendor_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("vendors.id"), index=True, nullable=True)
+    responsible_manager_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
     priority: Mapped[str] = mapped_column(String(30), default="High")
     planned_start_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     planned_completion_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
@@ -81,6 +93,10 @@ class WorkPackage(Base):
     # Critical distinction: Reported vs Verified
     reported_progress_percentage: Mapped[float] = mapped_column(Float, default=0.0)
     verified_progress_percentage: Mapped[float] = mapped_column(Float, default=0.0)
+    
+    # Work statuses: Draft, Planned, Assigned, In Progress, Progress Reported, Inspection Pending,
+    # Verification Failed, Rework Required, Verification Passed, Awaiting Authorised Acceptance,
+    # Accepted, Operationally Ready, On Hold, Cancelled
     workflow_state: Mapped[str] = mapped_column(String(60), default="In Progress", index=True)
     
     # Rule-based Risk attributes
@@ -91,12 +107,12 @@ class WorkPackage(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now, onupdate=get_utc_now)
 
-    project: Mapped[Project] = relationship("Project", back_populates="work_packages", lazy="joined")
+    project: Mapped[Project] = relationship("Project", back_populates="work_packages")
     vendor: Mapped[Optional[Vendor]] = relationship("Vendor", back_populates="work_packages", lazy="joined")
-    milestones: Mapped[List["Milestone"]] = relationship("Milestone", back_populates="work_package", cascade="all, delete-orphan")
-    inspections: Mapped[List["Inspection"]] = relationship("Inspection", back_populates="work_package", cascade="all, delete-orphan")
-    defects: Mapped[List["Defect"]] = relationship("Defect", back_populates="work_package", cascade="all, delete-orphan")
-    assets: Mapped[List["Asset"]] = relationship("Asset", back_populates="work_package")
+    milestones: Mapped[List["Milestone"]] = relationship("Milestone", back_populates="work_package", cascade="all, delete-orphan", lazy="joined")
+    inspections: Mapped[List["Inspection"]] = relationship("Inspection", back_populates="work_package", cascade="all, delete-orphan", lazy="joined")
+    defects: Mapped[List["Defect"]] = relationship("Defect", back_populates="work_package", cascade="all, delete-orphan", lazy="joined")
+    assets: Mapped[List["Asset"]] = relationship("Asset", back_populates="work_package", lazy="joined")
 
 
 class Milestone(Base):
@@ -108,15 +124,29 @@ class Milestone(Base):
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     due_date: Mapped[date] = mapped_column(Date, index=True, nullable=False)
     is_mandatory: Mapped[bool] = mapped_column(Boolean, default=True)
+    acceptance_criteria: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    required_evidence_type: Mapped[Optional[str]] = mapped_column(String(100), default="Photographic Inspection")
+    responsible_party: Mapped[Optional[str]] = mapped_column(String(150), nullable=True)
     
     # State tracking
     reported_status: Mapped[str] = mapped_column(String(50), default="Pending")  # Pending | Reported Complete
     verification_status: Mapped[str] = mapped_column(String(50), default="Unverified")  # Unverified | Verified | Rejected
     completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    verification_timestamp: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
 
     work_package: Mapped[WorkPackage] = relationship("WorkPackage", back_populates="milestones")
+    
+    # Milestone dependencies (directed relationship: milestones that this milestone depends on)
+    dependencies: Mapped[List["Milestone"]] = relationship(
+        "Milestone",
+        secondary=milestone_dependencies,
+        primaryjoin=id == milestone_dependencies.c.milestone_id,
+        secondaryjoin=id == milestone_dependencies.c.depends_on_id,
+        backref="dependent_milestones",
+        lazy="joined"
+    )
 
 
 class Inspection(Base):
@@ -138,7 +168,7 @@ class Inspection(Base):
     
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
 
-    work_package: Mapped[WorkPackage] = relationship("WorkPackage", back_populates="inspections", lazy="joined")
+    work_package: Mapped[WorkPackage] = relationship("WorkPackage", back_populates="inspections")
 
 
 class Defect(Base):
@@ -159,7 +189,7 @@ class Defect(Base):
     reported_by_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
 
-    work_package: Mapped[WorkPackage] = relationship("WorkPackage", back_populates="defects", lazy="joined")
+    work_package: Mapped[WorkPackage] = relationship("WorkPackage", back_populates="defects")
 
 
 class Asset(Base):

@@ -221,6 +221,77 @@ class ApiClient {
   async getDashboardActionQueue(): Promise<any[]> {
     return this.request<any[]>('/dashboard/action-queue');
   }
+
+  // --- Project & Work Package APIs ---
+  async getProjects(params: {
+    search?: string;
+    category?: string;
+    status?: string;
+    zone_id?: string;
+    skip?: number;
+    limit?: number;
+  } = {}): Promise<any[]> {
+    const searchParams = new URLSearchParams();
+    if (params.search) searchParams.set('search', params.search);
+    if (params.category) searchParams.set('category', params.category);
+    if (params.status) searchParams.set('status', params.status);
+    if (params.zone_id) searchParams.set('zone_id', params.zone_id);
+    if (params.skip !== undefined) searchParams.set('skip', String(params.skip));
+    if (params.limit !== undefined) searchParams.set('limit', String(params.limit));
+
+    const qs = searchParams.toString();
+    return this.request<any[]>(`/projects${qs ? `?${qs}` : ''}`);
+  }
+
+  async getProjectDetail(projectId: string): Promise<any> {
+    return this.request<any>(`/projects/${projectId}`);
+  }
+
+  async createProject(payload: any): Promise<any> {
+    return this.request<any>('/projects', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async updateProject(projectId: string, payload: any): Promise<any> {
+    return this.request<any>(`/projects/${projectId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async createWorkPackage(projectId: string, payload: any): Promise<any> {
+    return this.request<any>(`/projects/${projectId}/work-packages`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async updateWorkPackageStatus(workPackageId: string, targetState: string, reason?: string): Promise<any> {
+    return this.request<any>(`/projects/work-packages/${workPackageId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ target_state: targetState, reason }),
+    });
+  }
+
+  async createMilestone(workPackageId: string, payload: any): Promise<any> {
+    return this.request<any>(`/projects/work-packages/${workPackageId}/milestones`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async addMilestoneDependency(milestoneId: string, dependencyId: string): Promise<any> {
+    return this.request<any>(`/projects/milestones/${milestoneId}/dependencies`, {
+      method: 'POST',
+      body: JSON.stringify({ dependency_milestone_id: dependencyId }),
+    });
+  }
+
+  exportProjectsCsvUrl(): string {
+    return `${API_BASE}/projects/export/csv`;
+  }
 }
 
 export const api = new ApiClient();

@@ -10,6 +10,8 @@ import { NotFoundPage } from './features/auth/NotFoundPage';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 import { UsersPage } from './features/administration/UsersPage';
 import { AuditExplorerPage } from './features/audit/AuditExplorerPage';
+import { ProjectListPage } from './features/projects/ProjectListPage';
+import { ProjectDetailPage } from './features/projects/ProjectDetailPage';
 import { ModulePlaceholderPage } from './components/layout/ModulePlaceholderPage';
 
 const queryClient = new QueryClient();
@@ -53,17 +55,9 @@ export const App: React.FC = () => {
                 }
               />
 
-              {/* Subsequent Modules */}
-              <Route
-                path="/projects"
-                element={
-                  <ModulePlaceholderPage
-                    moduleNumber={3}
-                    moduleTitle="Project & Work Register"
-                    description="Work packages, milestones, dependencies, and reported vs verified status management."
-                  />
-                }
-              />
+              {/* Module 3 Project and Work Register */}
+              <Route path="/projects" element={<ProjectListPage />} />
+              <Route path="/projects/:id" element={<ProjectDetailPage />} />
               <Route
                 path="/vendors"
                 element={
