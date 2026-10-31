@@ -581,19 +581,36 @@ def run_seed_if_empty(db: Session):
     db.commit()
 
     # Inspections
-    # Inspection 1: FAILED inspection on WP1 (Hydrostatic Pressure Test)
+    # Inspection 1: FAILED inspection on WP1 (Hydrostatic Pressure Test) - Core Section 28 Demonstration
     insp1 = Inspection(
         id="insp-001",
         inspection_id="INSP-2026-DW01-01",
         work_package_id="wp-001",
         inspector_id="user-inspector",
+        milestone_id="ms-002",
+        asset_id="ast-001",
         scheduled_date=today - timedelta(days=3),
         actual_inspection_date=datetime.now(timezone.utc) - timedelta(days=3),
-        inspection_type="Pre-Commissioning Verification",
+        inspection_type="Mandatory Pressure/Safety Test",
         checklist_version="v1.2",
+        latitude=16.9944,
+        longitude=81.7678,
+        gps_accuracy_meters=3.5,
+        is_geofence_verified=True,
+        checklist_results=[
+            {"item": "Pipe joint welding & flange torque test", "verdict": "Pass", "measurement": "120 Nm", "notes": "Bolts torqued to structural specification."},
+            {"item": "Hydrostatic pressure test sustained for 30 mins", "verdict": "Fail", "measurement": "4.2 bar", "notes": "Pressure dropped from 6.0 bar to 4.2 bar in 14 minutes due to flange gasket leak."},
+            {"item": "Water quality potability preliminary test (TDS)", "verdict": "Pass", "measurement": "140 ppm", "notes": "Within BIS drinking water standards."}
+        ],
+        evidence_photos=[
+            {"name": "Pressure_Gauge_Reading_Fail.jpg", "caption": "Pressure drop observed at 4.2 bar (requires 6.0 bar)", "timestamp": "2026-10-28T14:32:00Z", "lat": 16.9944, "lng": 81.7678},
+            {"name": "Gasket_Joint_Seepage.jpg", "caption": "Active water seepage at joint 3B manifold", "timestamp": "2026-10-28T14:35:00Z", "lat": 16.9945, "lng": 81.7677}
+        ],
         outcome="Failed",
         notes="Mandatory hydrostatic test failed at 4.2 bar (spec requires 6.0 bar sustained for 30 mins). Water seepage detected at manifold gasket joint. Defect logged.",
-        reviewer_decision="Rejected"
+        verified_percentage_awarded=0.0,
+        reviewer_decision="Rejected",
+        inspector_signature="V. Ravi Kumar (AE PWD/QAC)"
     )
 
     # Inspection 2: PASSED inspection on WP3 (Sanitation block)
@@ -602,13 +619,29 @@ def run_seed_if_empty(db: Session):
         inspection_id="INSP-2026-SN03-01",
         work_package_id="wp-003",
         inspector_id="user-inspector",
+        milestone_id="ms-004",
+        asset_id="ast-002",
         scheduled_date=today - timedelta(days=6),
         actual_inspection_date=datetime.now(timezone.utc) - timedelta(days=6),
         inspection_type="Sanitation & Acceptance Audit",
         checklist_version="v2.0",
+        latitude=17.0012,
+        longitude=81.7742,
+        gps_accuracy_meters=4.1,
+        is_geofence_verified=True,
+        checklist_results=[
+            {"item": "Bio-digester tank seal integrity", "verdict": "Pass", "measurement": "Airtight", "notes": "No gas leakage detected."},
+            {"item": "Wheelchair ramp gradient check", "verdict": "Pass", "measurement": "1:12 slope", "notes": "Accessible for elderly and disabled pilgrims."},
+            {"item": "Water supply pressure at tap manifolds", "verdict": "Pass", "measurement": "2.5 bar", "notes": "Adequate continuous supply."}
+        ],
+        evidence_photos=[
+            {"name": "Bio_Digester_Seal_Check.jpg", "caption": "Certified air-tight digester seals", "timestamp": "2026-10-25T11:20:00Z", "lat": 17.0012, "lng": 81.7742}
+        ],
         outcome="Passed",
         notes="All 40 units inspected. Bacterial culture active in digesters. Ventilation and wheelchair ramps compliant. Certified acceptable.",
-        reviewer_decision="Approved"
+        verified_percentage_awarded=100.0,
+        reviewer_decision="Approved",
+        inspector_signature="V. Ravi Kumar (AE PWD/QAC)"
     )
 
     # Inspection 3: SCHEDULED / Awaiting Action on WP4 (Lighting)
@@ -617,9 +650,20 @@ def run_seed_if_empty(db: Session):
         inspection_id="INSP-2026-LT04-01",
         work_package_id="wp-004",
         inspector_id="user-inspector",
+        asset_id="ast-003",
         scheduled_date=today + timedelta(days=1),
         inspection_type="Electrical & Illumination Audit",
         checklist_version="v1.0",
+        latitude=16.9940,
+        longitude=81.7675,
+        gps_accuracy_meters=5.0,
+        is_geofence_verified=True,
+        checklist_results=[
+            {"item": "Mast tower foundation vertical alignment", "verdict": "Pending", "measurement": None, "notes": "Awaiting plumb bob measurement."},
+            {"item": "Earthing resistance measurement", "verdict": "Pending", "measurement": None, "notes": "Earth pit resistance to be recorded (< 2 ohms)."},
+            {"item": "Ground lux levels under full array", "verdict": "Pending", "measurement": None, "notes": "Night test required."}
+        ],
+        evidence_photos=[],
         outcome="Scheduled",
         notes="Awaiting on-site lux-meter night illumination verification."
     )
@@ -628,6 +672,7 @@ def run_seed_if_empty(db: Session):
         if not db.query(Inspection).filter(Inspection.id == insp.id).first():
             db.add(insp)
     db.commit()
+
 
     # Defects
     # Defect 1: Critical blocking defect on WP1

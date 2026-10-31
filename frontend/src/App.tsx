@@ -14,6 +14,8 @@ import { ProjectListPage } from './features/projects/ProjectListPage';
 import { ProjectDetailPage } from './features/projects/ProjectDetailPage';
 import { VendorListPage } from './features/vendors/VendorListPage';
 import { VendorDashboardPage } from './features/vendors/VendorDashboardPage';
+import { InspectionListPage } from './features/inspections/InspectionListPage';
+import { InspectionDetailPage } from './features/inspections/InspectionDetailPage';
 import { ModulePlaceholderPage } from './components/layout/ModulePlaceholderPage';
 
 const queryClient = new QueryClient();
@@ -65,16 +67,9 @@ export const App: React.FC = () => {
               <Route path="/vendors/:id" element={<VendorDashboardPage />} />
               <Route path="/vendor-portal" element={<VendorDashboardPage />} />
 
-              <Route
-                path="/inspections"
-                element={
-                  <ModulePlaceholderPage
-                    moduleNumber={5}
-                    moduleTitle="Field Verification & Mobile Inspections"
-                    description="Configurable checklist execution, evidence uploads, measurements, and pass/fail verdicts."
-                  />
-                }
-              />
+              {/* Module 5 Field Verification and Mobile Inspections */}
+              <Route path="/inspections" element={<InspectionListPage />} />
+              <Route path="/inspections/:id" element={<InspectionDetailPage />} />
               <Route
                 path="/defects"
                 element={

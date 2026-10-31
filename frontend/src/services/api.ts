@@ -6,6 +6,13 @@ import type {
   ProgressSubmissionCreate,
   SubmissionReviewRequest
 } from '../types/vendor';
+import type {
+  Inspection,
+  InspectionStats,
+  InspectionCreateRequest,
+  InspectionExecuteRequest,
+  InspectionReviewRequest,
+} from '../types/inspection';
 
 
 const API_BASE = '/api/v1';
@@ -355,6 +362,57 @@ class ApiClient {
 
   async reviewProgressSubmission(id: string, payload: SubmissionReviewRequest): Promise<ProgressSubmission> {
     return this.request<ProgressSubmission>(`/vendors/progress-submissions/${id}/review`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  // --- Module 5: Field Verification & Inspections APIs ---
+  async getInspections(params?: {
+    work_package_id?: string;
+    project_id?: string;
+    inspector_id?: string;
+    outcome?: string;
+    inspection_type?: string;
+    zone_id?: string;
+    search?: string;
+  }): Promise<Inspection[]> {
+    const q = new URLSearchParams();
+    if (params?.work_package_id) q.append('work_package_id', params.work_package_id);
+    if (params?.project_id) q.append('project_id', params.project_id);
+    if (params?.inspector_id) q.append('inspector_id', params.inspector_id);
+    if (params?.outcome) q.append('outcome', params.outcome);
+    if (params?.inspection_type) q.append('inspection_type', params.inspection_type);
+    if (params?.zone_id) q.append('zone_id', params.zone_id);
+    if (params?.search) q.append('search', params.search);
+    const query = q.toString() ? `?${q.toString()}` : '';
+    return this.request<Inspection[]>(`/inspections${query}`);
+  }
+
+  async getInspectionStats(): Promise<InspectionStats> {
+    return this.request<InspectionStats>('/inspections/stats');
+  }
+
+  async getInspection(id: string): Promise<Inspection> {
+    return this.request<Inspection>(`/inspections/${id}`);
+  }
+
+  async scheduleInspection(payload: InspectionCreateRequest): Promise<Inspection> {
+    return this.request<Inspection>('/inspections', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async executeInspection(id: string, payload: InspectionExecuteRequest): Promise<Inspection> {
+    return this.request<Inspection>(`/inspections/${id}/execute`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async reviewInspection(id: string, payload: InspectionReviewRequest): Promise<Inspection> {
+    return this.request<Inspection>(`/inspections/${id}/review`, {
       method: 'PATCH',
       body: JSON.stringify(payload),
     });

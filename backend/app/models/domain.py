@@ -187,18 +187,37 @@ class Inspection(Base):
     inspection_id: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
     work_package_id: Mapped[str] = mapped_column(String(36), ForeignKey("work_packages.id"), index=True, nullable=False)
     inspector_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
+    milestone_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("milestones.id"), nullable=True)
+    asset_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("assets.id"), nullable=True)
+
     scheduled_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     actual_inspection_date: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     inspection_type: Mapped[str] = mapped_column(String(80), default="Routine Verification")
     checklist_version: Mapped[str] = mapped_column(String(20), default="v1.0")
     
-    outcome: Mapped[str] = mapped_column(String(50), default="Scheduled", index=True)
+    # Checklists and findings
+    checklist_results: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSON, default=list)
+    evidence_photos: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSON, default=list)
+    
+    # Physical field geolocation metadata
+    latitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    longitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    gps_accuracy_meters: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    is_geofence_verified: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    # Verdict and Progress Impact
+    outcome: Mapped[str] = mapped_column(String(50), default="Scheduled", index=True)  # Scheduled | In Progress | Passed | Failed | Conditional Pass
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    verified_percentage_awarded: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     reviewer_decision: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    inspector_signature: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
     
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
 
     work_package: Mapped[WorkPackage] = relationship("WorkPackage", back_populates="inspections")
+    milestone: Mapped[Optional["Milestone"]] = relationship("Milestone")
+    asset: Mapped[Optional["Asset"]] = relationship("Asset")
+    defects: Mapped[List["Defect"]] = relationship("Defect", back_populates="inspection")
 
 
 class Defect(Base):
@@ -218,6 +237,8 @@ class Defect(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
 
     work_package: Mapped[WorkPackage] = relationship("WorkPackage", back_populates="defects")
+    inspection: Mapped[Optional["Inspection"]] = relationship("Inspection", back_populates="defects")
+
 
 
 class Asset(Base):
