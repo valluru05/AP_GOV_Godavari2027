@@ -49,6 +49,11 @@ import type {
   ZoneGeoBoundary,
   MapFilterParams,
 } from '../types/map';
+import type {
+  OfflineInspectionDownload,
+  SyncBatchRequest,
+  SyncBatchResponse,
+} from '../types/offline';
 
 
 const API_BASE = '/api/v1';
@@ -656,6 +661,18 @@ class ApiClient {
 
   async getMapZones(): Promise<ZoneGeoBoundary[]> {
     return this.request<ZoneGeoBoundary[]>('/map/zones');
+  }
+
+  // --- Offline-First Field Workflows (Module 11) ---
+  async getAssignedInspectionsForOffline(): Promise<OfflineInspectionDownload[]> {
+    return this.request<OfflineInspectionDownload[]>('/offline/assigned-inspections');
+  }
+
+  async syncOfflineBatch(batch: SyncBatchRequest): Promise<SyncBatchResponse> {
+    return this.request<SyncBatchResponse>('/offline/sync', {
+      method: 'POST',
+      body: JSON.stringify(batch),
+    });
   }
 }
 

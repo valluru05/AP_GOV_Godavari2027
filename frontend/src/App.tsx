@@ -23,6 +23,7 @@ import { AssetDetailPage } from './features/assets/AssetDetailPage';
 import { ReadinessDashboardPage } from './features/readiness/ReadinessDashboardPage';
 import { DependencyGraphPage } from './features/dependencies/DependencyGraphPage';
 import { MapPage } from './features/map/MapPage';
+import { OfflineFieldPage } from './features/offline/OfflineFieldPage';
 import { ModulePlaceholderPage } from './components/layout/ModulePlaceholderPage';
 
 const queryClient = new QueryClient();
@@ -89,6 +90,8 @@ export const App: React.FC = () => {
               <Route path="/dependencies" element={<DependencyGraphPage />} />
               {/* Module 10 Geographic Map & Zone Monitoring */}
               <Route path="/map" element={<MapPage />} />
+              {/* Module 11 Offline-First Field Workflows */}
+              <Route path="/offline" element={<OfflineFieldPage />} />
 
               <Route
                 path="/reports"

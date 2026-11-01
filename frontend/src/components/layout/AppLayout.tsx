@@ -21,6 +21,7 @@ import {
   Bell,
   Shield,
   ArrowRightLeft,
+  WifiOff,
 } from 'lucide-react';
 import { useAuth, DEMO_ACCOUNTS } from '../../context/AuthContext';
 import { Badge } from '../ui/Badge';
@@ -55,6 +56,7 @@ export const AppLayout: React.FC = () => {
     { name: 'Readiness & Risk', path: '/readiness', icon: ShieldAlert },
     { name: 'Dependency Graph', path: '/dependencies', icon: GitBranch },
     { name: 'Geographic Map', path: '/map', icon: MapPin },
+    { name: 'Offline Field Sync', path: '/offline', icon: WifiOff },
     { name: 'Reports', path: '/reports', icon: FileSpreadsheet },
     { name: 'My Tasks', path: '/my-tasks', icon: CheckSquare },
     {

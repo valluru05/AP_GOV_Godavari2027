@@ -316,3 +316,16 @@ class Asset(Base):
     defects: Mapped[List["Defect"]] = relationship("Defect", foreign_keys="Defect.asset_id", lazy="selectin", overlaps="asset")
     inspections: Mapped[List["Inspection"]] = relationship("Inspection", foreign_keys="Inspection.asset_id", lazy="selectin", overlaps="asset")
 
+
+class OfflineSyncRecord(Base):
+    __tablename__ = "offline_sync_records"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    client_submission_id: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
+    action_type: Mapped[str] = mapped_column(String(60), nullable=False)
+    entity_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
+    status: Mapped[str] = mapped_column(String(30), default="synced")  # synced | conflict | failed
+    details: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
+
