@@ -54,6 +54,11 @@ import type {
   SyncBatchRequest,
   SyncBatchResponse,
 } from '../types/offline';
+import type {
+  ReportTypeOption,
+  ReportFilterParams,
+  ReportDataResponse,
+} from '../types/report';
 
 
 const API_BASE = '/api/v1';
@@ -674,7 +679,51 @@ class ApiClient {
       body: JSON.stringify(batch),
     });
   }
+
+  // --- Reports, Exports, & Audit History (Module 12) ---
+  async getReportTypes(): Promise<ReportTypeOption[]> {
+    return this.request<ReportTypeOption[]>('/reports/types');
+  }
+
+  async getReportData(filters: ReportFilterParams): Promise<ReportDataResponse> {
+    return this.request<ReportDataResponse>('/reports/data', {
+      method: 'POST',
+      body: JSON.stringify(filters),
+    });
+  }
+
+  async downloadReportCsv(params: Partial<ReportFilterParams>): Promise<Blob> {
+    const q = new URLSearchParams();
+    if (params.report_type) q.append('report_type', params.report_type);
+    if (params.zone_id && params.zone_id !== 'All') q.append('zone_id', params.zone_id);
+    if (params.category && params.category !== 'All') q.append('category', params.category);
+    if (params.status && params.status !== 'All') q.append('status', params.status);
+    if (params.risk_level && params.risk_level !== 'All') q.append('risk_level', params.risk_level);
+    if (params.search) q.append('search', params.search);
+
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    const url = `${API_BASE}/reports/export/csv${qs}`;
+
+    const headers: Record<string, string> = {};
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+
+    const res = await fetch(url, { headers, credentials: 'same-origin' });
+    if (!res.ok) {
+      let err = 'Export failed';
+      try {
+        const json = await res.json();
+        err = json.detail || err;
+      } catch {
+        err = `HTTP ${res.status}: ${res.statusText}`;
+      }
+      throw new Error(err);
+    }
+    return res.blob();
+  }
 }
 
 export const api = new ApiClient();
+
 

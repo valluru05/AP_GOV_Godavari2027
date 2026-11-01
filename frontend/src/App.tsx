@@ -24,6 +24,7 @@ import { ReadinessDashboardPage } from './features/readiness/ReadinessDashboardP
 import { DependencyGraphPage } from './features/dependencies/DependencyGraphPage';
 import { MapPage } from './features/map/MapPage';
 import { OfflineFieldPage } from './features/offline/OfflineFieldPage';
+import { ReportsPage } from './features/reports/ReportsPage';
 import { ModulePlaceholderPage } from './components/layout/ModulePlaceholderPage';
 
 const queryClient = new QueryClient();
@@ -93,16 +94,9 @@ export const App: React.FC = () => {
               {/* Module 11 Offline-First Field Workflows */}
               <Route path="/offline" element={<OfflineFieldPage />} />
 
-              <Route
-                path="/reports"
-                element={
-                  <ModulePlaceholderPage
-                    moduleNumber={12}
-                    moduleTitle="Reports, Exports, & Analytics"
-                    description="Custom filters, CSV exports, and printable PDF executive briefings."
-                  />
-                }
-              />
+              {/* Module 12 Reports, Exports, & Audit History */}
+              <Route path="/reports" element={<ReportsPage />} />
+
               <Route
                 path="/my-tasks"
                 element={
