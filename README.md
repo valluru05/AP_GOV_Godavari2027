@@ -1,21 +1,23 @@
 # CivicProof: Field-Verified Infrastructure Readiness & Asset Accountability Platform
+### Government of Andhra Pradesh — Godavari Pushkaralu 2027
 
 > **Target Scenario:** Godavari Pushkaralu 2027, Rajamahendravaram, Andhra Pradesh  
-> **Status:** Module 1 (Authentication, Users, Roles & Permissions) & Foundation Complete
+> **Status:** Full-Stack Prototype (Modules 1 through 8 Complete)
 
 ---
 
 ## Architecture Overview
 CivicProof enforces the **Verified Readiness Chain**: a strict four-state workflow separating contractor progress claims from independent engineering inspection, administrative acceptance, and asset operational readiness.
 
-### Key Features Implemented in Module 1:
-- **Argon2id Cryptographic Password Hashing & JWT Authorization**
-- **Strict Server-Side Role-Based Access Control (RBAC)** across 7 distinct personas
-- **7 Seeded Public-Sector Personas** with 1-Click Interactive Persona Switcher for evaluators
-- **User Management & Activation/Deactivation** with immediate session revocation
-- **Append-Only Tamper-Evident Audit Explorer** recording all authentication and administrative actions
-- **Futuristic Government Light-Themed Design System** (Deep Government Blue `#174EA6`, Background `#F5F7FA`, Surface `#FFFFFF`, Inter typography)
-- **100% Automated Backend Pytest Suite** passing all critical security and business rules
+### Key Implemented Modules:
+1. **Module 1 — Authentication, Users, Roles, and Permissions:** Argon2id hashing, JWT, 7 public-sector personas, user activation/deactivation, audit trail.
+2. **Module 2 — Executive Overview Dashboard:** High-level executive command metrics, GIS zone breakdown, and prioritized action queues.
+3. **Module 3 — Project and Work Register:** DPR budgets, civil work packages, cycle-protected milestone dependencies, and 9-tab inspection detail.
+4. **Module 4 — Vendor and Service-Provider Management:** Contractor performance registry, delayed milestone accountability, and verified progress audits.
+5. **Module 5 — Field Verification and Mobile Inspections:** GPS geofencing, checklist execution, evidence vault, and anti-corruption progress accreditation.
+6. **Module 6 — Defects, Corrective Action, & Rework:** Quality & safety non-conformance tracking, contractor rework submissions, and independent re-inspection.
+7. **Module 7 — Municipal Asset Registry & QR Traceability:** Capital asset register, high-contrast thermal printable QR matrix, and Section 12 readiness gating.
+8. **Module 8 — Verified Readiness Chain & Risk Engine:** 12-stage audited lifecycle traceability, explainable 0–100 risk scoring (Rules A through G), and controlled administrative acceptance gates.
 
 ---
 
@@ -44,8 +46,8 @@ CivicProof enforces the **Verified Readiness Chain**: a strict four-state workfl
 # Activate virtual environment
 source .venv/bin/activate
 
-# Run automated tests
-PYTHONPATH=backend pytest backend/tests/test_auth.py -v
+# Run automated tests (50 tests passing)
+PYTHONPATH=backend pytest backend/tests -v
 
 # Start FastAPI backend server (Port 8008)
 PYTHONPATH=backend uvicorn app.main:app --host 127.0.0.1 --port 8008 --reload
