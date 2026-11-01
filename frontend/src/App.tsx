@@ -21,6 +21,7 @@ import { DefectDetailPage } from './features/defects/DefectDetailPage';
 import { AssetListPage } from './features/assets/AssetListPage';
 import { AssetDetailPage } from './features/assets/AssetDetailPage';
 import { ReadinessDashboardPage } from './features/readiness/ReadinessDashboardPage';
+import { DependencyGraphPage } from './features/dependencies/DependencyGraphPage';
 import { ModulePlaceholderPage } from './components/layout/ModulePlaceholderPage';
 
 const queryClient = new QueryClient();
@@ -81,8 +82,10 @@ export const App: React.FC = () => {
               {/* Module 7 Municipal Asset Registry & QR Traceability */}
               <Route path="/assets" element={<AssetListPage />} />
               <Route path="/assets/:id" element={<AssetDetailPage />} />
-              {/* Module 8 & 9 Verified Readiness Chain & Risk Engine */}
+              {/* Module 8 Verified Readiness Chain & Risk Engine */}
               <Route path="/readiness" element={<ReadinessDashboardPage />} />
+              {/* Module 9 Readiness Dependency Graph & Risk Engine */}
+              <Route path="/dependencies" element={<DependencyGraphPage />} />
               <Route
                 path="/map"
                 element={

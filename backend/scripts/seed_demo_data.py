@@ -580,6 +580,29 @@ def run_seed_if_empty(db: Session):
             db.add(Milestone(**ms))
     db.commit()
 
+    # Module 9: Milestone Dependencies DAG
+    from app.models.domain import milestone_dependencies
+    from sqlalchemy import select, insert
+
+    deps_data = [
+        ("ms-02", "ms-01"),  # RO Installation depends on Civil Foundation
+        ("ms-03", "ms-02"),  # Pressure Test depends on RO Installation
+        ("ms-05", "ms-04"),  # Pipe Laying depends on Trenching
+        ("ms-05", "ms-02"),  # Pipe Laying connects to RO Plant
+        ("ms-07", "ms-06"),  # Sanitation Superstructure depends on Bio-Digester Substructure
+        ("ms-09", "ms-08"),  # Steel Barrier Linkage depends on Riverbed Mooring
+    ]
+    for m_id, dep_id in deps_data:
+        exists = db.execute(
+            select(milestone_dependencies).where(
+                milestone_dependencies.c.milestone_id == m_id,
+                milestone_dependencies.c.depends_on_id == dep_id
+            )
+        ).first()
+        if not exists:
+            db.execute(insert(milestone_dependencies).values(milestone_id=m_id, depends_on_id=dep_id))
+    db.commit()
+
     # Inspections
     # Inspection 1: FAILED inspection on WP1 (Hydrostatic Pressure Test) - Core Section 28 Demonstration
     insp1 = Inspection(

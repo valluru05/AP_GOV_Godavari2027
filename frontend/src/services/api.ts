@@ -38,6 +38,12 @@ import type {
   AcceptanceValidationResult,
   AcceptanceTransitionRequest,
 } from '../types/readiness';
+import type {
+  DependencyGraphResponse,
+  DelayImpactSimulationRequest,
+  DelayImpactSimulationResponse,
+  AddDependencyRequest,
+} from '../types/dependency';
 
 
 const API_BASE = '/api/v1';
@@ -322,12 +328,6 @@ class ApiClient {
     });
   }
 
-  async addMilestoneDependency(milestoneId: string, dependencyId: string): Promise<any> {
-    return this.request<any>(`/projects/milestones/${milestoneId}/dependencies`, {
-      method: 'POST',
-      body: JSON.stringify({ dependency_milestone_id: dependencyId }),
-    });
-  }
 
   exportProjectsCsvUrl(): string {
     return `${API_BASE}/projects/export/csv`;
@@ -604,6 +604,36 @@ class ApiClient {
     return this.request<any>(`/readiness/work-packages/${encodeURIComponent(workPackageId)}/accept`, {
       method: 'POST',
       body: JSON.stringify(payload),
+    });
+  }
+
+  // --- Module 9: Readiness Dependency Graph & Risk Engine ---
+  async getDependencyGraph(projectId?: string): Promise<DependencyGraphResponse> {
+    const qs = projectId ? `?project_id=${encodeURIComponent(projectId)}` : '';
+    return this.request<DependencyGraphResponse>(`/dependencies/graph${qs}`);
+  }
+
+  async simulateDelayImpact(payload: DelayImpactSimulationRequest): Promise<DelayImpactSimulationResponse> {
+    return this.request<DelayImpactSimulationResponse>('/dependencies/simulate-impact', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async addMilestoneDependency(arg1: AddDependencyRequest | string, arg2?: string): Promise<any> {
+    const payload: AddDependencyRequest = typeof arg1 === 'string'
+      ? { milestone_id: arg1, depends_on_id: arg2! }
+      : arg1;
+    return this.request<any>('/dependencies', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async deleteMilestoneDependency(milestoneId: string, dependsOnId: string): Promise<any> {
+    const qs = `?milestone_id=${encodeURIComponent(milestoneId)}&depends_on_id=${encodeURIComponent(dependsOnId)}`;
+    return this.request<any>(`/dependencies${qs}`, {
+      method: 'DELETE',
     });
   }
 }
