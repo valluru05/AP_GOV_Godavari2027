@@ -26,6 +26,7 @@ import {
 import { useAuth, DEMO_ACCOUNTS } from '../../context/AuthContext';
 import { Badge } from '../ui/Badge';
 import { Modal } from '../ui/Modal';
+import { NotificationBellDropdown } from '../../features/notifications/NotificationBellDropdown';
 
 export const AppLayout: React.FC = () => {
   const { user, logout, quickLogin, hasRole, hasPermission } = useAuth();
@@ -59,6 +60,7 @@ export const AppLayout: React.FC = () => {
     { name: 'Offline Field Sync', path: '/offline', icon: WifiOff },
     { name: 'Reports', path: '/reports', icon: FileSpreadsheet },
     { name: 'My Tasks', path: '/my-tasks', icon: CheckSquare },
+    { name: 'Notifications', path: '/notifications', icon: Bell },
     {
       name: 'User Management',
       path: '/admin/users',
@@ -284,15 +286,9 @@ export const AppLayout: React.FC = () => {
                 )}
               </div>
 
-              {/* Notification icon */}
-              <button
-                className="p-1.5 text-textSecondary hover:text-brand hover:bg-slate-100 rounded-lg relative transition-colors"
-                title="Notifications"
-                onClick={() => navigate('/dashboard')}
-              >
-                <Bell className="w-4 h-4" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-govWarning rounded-full"></span>
-              </button>
+              {/* Active In-App Notification Center Dropdown */}
+              <NotificationBellDropdown />
+
 
               {/* Quick Role Switcher Button */}
               <button

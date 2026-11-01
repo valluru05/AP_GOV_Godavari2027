@@ -329,3 +329,31 @@ class OfflineSyncRecord(Base):
     details: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
 
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), index=True, nullable=False)
+
+    # Statutory trigger category per Section 18
+    trigger_type: Mapped[str] = mapped_column(String(60), index=True, nullable=False)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    severity: Mapped[str] = mapped_column(String(20), default="info", index=True)  # critical | warning | info | success
+
+    # Related record and direct navigation route
+    entity_type: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    entity_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    action_url: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+
+    # Read tracking
+    is_read: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    read_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    # Idempotent deduplication hash to avoid duplicates on retries
+    deduplication_key: Mapped[Optional[str]] = mapped_column(String(150), unique=True, index=True, nullable=True)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now, index=True)
+
+

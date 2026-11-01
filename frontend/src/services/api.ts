@@ -59,6 +59,12 @@ import type {
   ReportFilterParams,
   ReportDataResponse,
 } from '../types/report';
+import type {
+  NotificationItem,
+  NotificationListResponse,
+  MyTasksResponse,
+  ExternalChannelsStatusResponse
+} from '../types/notification';
 
 
 const API_BASE = '/api/v1';
@@ -722,8 +728,64 @@ class ApiClient {
     }
     return res.blob();
   }
+
+  // --- Notifications & Task Management (Module 13) ---
+  async getNotifications(params?: {
+    unread_only?: boolean;
+    trigger_type?: string;
+    severity?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<NotificationListResponse> {
+    const q = new URLSearchParams();
+    if (params?.unread_only) q.append('unread_only', 'true');
+    if (params?.trigger_type && params.trigger_type !== 'All') q.append('trigger_type', params.trigger_type);
+    if (params?.severity && params.severity !== 'All') q.append('severity', params.severity);
+    if (params?.limit) q.append('limit', String(params.limit));
+    if (params?.offset) q.append('offset', String(params.offset));
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return this.request<NotificationListResponse>(`/notifications${qs}`);
+  }
+
+
+  async getUnreadNotificationCount(): Promise<number> {
+    const res = await this.request<{ unread_count: number }>('/notifications/unread-count');
+    return res.unread_count;
+  }
+
+  async markNotificationRead(id: string): Promise<NotificationItem> {
+    return this.request<NotificationItem>(`/notifications/${id}/read`, {
+      method: 'POST',
+    });
+  }
+
+  async markAllNotificationsRead(): Promise<{ marked_count: number }> {
+    return this.request<{ marked_count: number }>('/notifications/mark-all-read', {
+      method: 'POST',
+    });
+  }
+
+  async getMyTasks(params?: {
+    task_type?: string;
+    priority?: string;
+    due_status?: string;
+    search?: string;
+  }): Promise<MyTasksResponse> {
+    const q = new URLSearchParams();
+    if (params?.task_type && params.task_type !== 'All') q.append('task_type', params.task_type);
+    if (params?.priority && params.priority !== 'All') q.append('priority', params.priority);
+    if (params?.due_status && params.due_status !== 'All') q.append('due_status', params.due_status);
+    if (params?.search) q.append('search', params.search);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return this.request<MyTasksResponse>(`/notifications/my-tasks${qs}`);
+  }
+
+  async getExternalChannelsStatus(): Promise<ExternalChannelsStatusResponse> {
+    return this.request<ExternalChannelsStatusResponse>('/notifications/external-channels-status');
+  }
 }
 
 export const api = new ApiClient();
+
 
 

@@ -25,7 +25,8 @@ import { DependencyGraphPage } from './features/dependencies/DependencyGraphPage
 import { MapPage } from './features/map/MapPage';
 import { OfflineFieldPage } from './features/offline/OfflineFieldPage';
 import { ReportsPage } from './features/reports/ReportsPage';
-import { ModulePlaceholderPage } from './components/layout/ModulePlaceholderPage';
+import { NotificationCenterPage } from './features/notifications/NotificationCenterPage';
+import { MyTasksPage } from './features/tasks/MyTasksPage';
 
 const queryClient = new QueryClient();
 
@@ -97,16 +98,10 @@ export const App: React.FC = () => {
               {/* Module 12 Reports, Exports, & Audit History */}
               <Route path="/reports" element={<ReportsPage />} />
 
-              <Route
-                path="/my-tasks"
-                element={
-                  <ModulePlaceholderPage
-                    moduleNumber={13}
-                    moduleTitle="My Tasks & Action Queue"
-                    description="Personalized task list for assigned inspections, reviews, and overdue items."
-                  />
-                }
-              />
+              {/* Module 13 Notifications and Task Management / Action Queue */}
+              <Route path="/notifications" element={<NotificationCenterPage />} />
+              <Route path="/my-tasks" element={<MyTasksPage />} />
+
             </Route>
 
             {/* 404 Route */}
