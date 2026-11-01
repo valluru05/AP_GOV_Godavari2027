@@ -8,6 +8,7 @@ import {
   GitBranch,
   RefreshCw,
   Lock,
+  Layers
 } from 'lucide-react';
 import { api } from '../../services/api';
 import type { ProjectDetail, WorkPackage, Milestone } from '../../types/project';
@@ -15,6 +16,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
+import { ReadinessChainModal } from '../readiness/ReadinessChainModal';
 
 export const ProjectDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -69,6 +71,7 @@ export const ProjectDetailPage: React.FC = () => {
   const [transitionReason, setTransitionReason] = useState('');
   const [transitionSubmitting, setTransitionSubmitting] = useState(false);
   const [transitionError, setTransitionError] = useState<string | null>(null);
+  const [selectedChainWpId, setSelectedChainWpId] = useState<string | null>(null);
 
   const canEdit = hasPermission('projects:edit');
 
@@ -450,6 +453,14 @@ export const ProjectDetailPage: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      icon={<Layers className="w-3.5 h-3.5" />}
+                      onClick={() => setSelectedChainWpId(wp.id)}
+                    >
+                      Readiness Chain
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
@@ -1001,6 +1012,13 @@ export const ProjectDetailPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {/* 12-Stage Verified Readiness Chain Modal (Section 13) */}
+      <ReadinessChainModal
+        isOpen={Boolean(selectedChainWpId)}
+        onClose={() => setSelectedChainWpId(null)}
+        workPackageId={selectedChainWpId}
+      />
     </div>
   );
 };

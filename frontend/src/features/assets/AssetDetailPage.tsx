@@ -15,7 +15,8 @@ import {
   ExternalLink,
   Plus,
   Paperclip,
-  Tag
+  Tag,
+  Layers
 } from 'lucide-react';
 import { api } from '../../services/api';
 import type {
@@ -30,6 +31,7 @@ import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import { useAuth } from '../../context/AuthContext';
 import { QRLabelModal } from './QRLabelModal';
+import { ReadinessChainModal } from '../readiness/ReadinessChainModal';
 
 export const AssetDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -43,6 +45,7 @@ export const AssetDetailPage: React.FC = () => {
   // Modals
   const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
   const [labelData, setLabelData] = useState<AssetQRLabel | null>(null);
+  const [isReadinessModalOpen, setIsReadinessModalOpen] = useState(false);
 
   // Transition Modal State
   const [isTransitionModalOpen, setIsTransitionModalOpen] = useState(false);
@@ -223,6 +226,19 @@ export const AssetDetailPage: React.FC = () => {
             <Printer className="w-4 h-4 text-brand-600" />
             Print QR Tag
           </Button>
+
+          {asset.work_package_id && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setIsReadinessModalOpen(true)}
+              className="gap-1.5 text-slate-700 shadow-sm"
+            >
+              <Layers className="w-4 h-4 text-brand-600" />
+              12-Stage Readiness Chain
+            </Button>
+          )}
 
           {canTransition && (
             <Button
@@ -870,6 +886,13 @@ export const AssetDetailPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {/* 12-Stage Verified Readiness Chain Modal (Section 13) */}
+      <ReadinessChainModal
+        isOpen={isReadinessModalOpen}
+        onClose={() => setIsReadinessModalOpen(false)}
+        workPackageId={asset?.work_package_id || null}
+      />
     </div>
   );
 };

@@ -31,6 +31,13 @@ import type {
   AssetEvidenceRequest,
   AssetQRLabel
 } from '../types/asset';
+import type {
+  ReadinessDashboardSummary,
+  ReadinessChainResponse,
+  WorkPackageRiskEvaluation,
+  AcceptanceValidationResult,
+  AcceptanceTransitionRequest,
+} from '../types/readiness';
 
 
 const API_BASE = '/api/v1';
@@ -558,6 +565,43 @@ class ApiClient {
 
   async addAssetEvidence(id: string, payload: AssetEvidenceRequest): Promise<Asset> {
     return this.request<Asset>(`/assets/${id}/evidence`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  // --- Readiness Chain & Risk Engine ---
+  async getReadinessDashboard(params?: {
+    project_id?: string;
+    zone_id?: string;
+    category?: string;
+    risk_category?: string;
+  }): Promise<ReadinessDashboardSummary> {
+    const query = new URLSearchParams();
+    if (params?.project_id) query.append('project_id', params.project_id);
+    if (params?.zone_id) query.append('zone_id', params.zone_id);
+    if (params?.category) query.append('category', params.category);
+    if (params?.risk_category) query.append('risk_category', params.risk_category);
+    const qs = query.toString();
+    return this.request<ReadinessDashboardSummary>(`/readiness/dashboard${qs ? `?${qs}` : ''}`);
+  }
+
+  async getReadinessChain(workPackageId: string): Promise<ReadinessChainResponse> {
+    return this.request<ReadinessChainResponse>(`/readiness/work-packages/${encodeURIComponent(workPackageId)}/chain`);
+  }
+
+  async getWorkPackageRisk(workPackageId: string): Promise<WorkPackageRiskEvaluation> {
+    return this.request<WorkPackageRiskEvaluation>(`/readiness/work-packages/${encodeURIComponent(workPackageId)}/risk`);
+  }
+
+  async validateAcceptance(workPackageId: string): Promise<AcceptanceValidationResult> {
+    return this.request<AcceptanceValidationResult>(`/readiness/work-packages/${encodeURIComponent(workPackageId)}/validate-acceptance`, {
+      method: 'POST',
+    });
+  }
+
+  async acceptWorkPackage(workPackageId: string, payload: AcceptanceTransitionRequest): Promise<any> {
+    return this.request<any>(`/readiness/work-packages/${encodeURIComponent(workPackageId)}/accept`, {
       method: 'POST',
       body: JSON.stringify(payload),
     });

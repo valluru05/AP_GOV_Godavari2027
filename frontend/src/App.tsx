@@ -20,6 +20,7 @@ import { DefectListPage } from './features/defects/DefectListPage';
 import { DefectDetailPage } from './features/defects/DefectDetailPage';
 import { AssetListPage } from './features/assets/AssetListPage';
 import { AssetDetailPage } from './features/assets/AssetDetailPage';
+import { ReadinessDashboardPage } from './features/readiness/ReadinessDashboardPage';
 import { ModulePlaceholderPage } from './components/layout/ModulePlaceholderPage';
 
 const queryClient = new QueryClient();
@@ -80,16 +81,8 @@ export const App: React.FC = () => {
               {/* Module 7 Municipal Asset Registry & QR Traceability */}
               <Route path="/assets" element={<AssetListPage />} />
               <Route path="/assets/:id" element={<AssetDetailPage />} />
-              <Route
-                path="/readiness"
-                element={
-                  <ModulePlaceholderPage
-                    moduleNumber={8}
-                    moduleTitle="Verified Readiness Chain & Risk Engine"
-                    description="End-to-end audit chain and explainable rule-based risk evaluation (0-100 score)."
-                  />
-                }
-              />
+              {/* Module 8 & 9 Verified Readiness Chain & Risk Engine */}
+              <Route path="/readiness" element={<ReadinessDashboardPage />} />
               <Route
                 path="/map"
                 element={
