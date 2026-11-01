@@ -2,7 +2,7 @@ from app.db.base import Base
 from app.models.user import User, Role, Permission, Department, AuditEvent, user_roles, role_permissions
 from app.models.domain import (
     Zone, Vendor, Project, WorkPackage, Milestone, Inspection, Defect, Asset, milestone_dependencies,
-    ProgressSubmission, OfflineSyncRecord, Notification
+    ProgressSubmission, OfflineSyncRecord, Notification, SystemSetting, ChecklistTemplate
 )
 
 __all__ = [
@@ -25,7 +25,9 @@ __all__ = [
     "milestone_dependencies",
     "ProgressSubmission",
     "OfflineSyncRecord",
-    "Notification"
+    "Notification",
+    "SystemSetting",
+    "ChecklistTemplate"
 ]
 
 

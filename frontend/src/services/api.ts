@@ -65,6 +65,17 @@ import type {
   MyTasksResponse,
   ExternalChannelsStatusResponse
 } from '../types/notification';
+import type {
+  RoleMatrixResponse,
+  RoleMatrixItem,
+  DepartmentDetailResponse,
+  ZoneAdminResponse,
+  ChecklistTemplateResponse,
+  ChecklistTemplateCreateRequest,
+  SystemConfigResponse,
+  SystemConfigUpdateRequest,
+  DemoDataResetResponse,
+} from '../types/admin';
 
 
 const API_BASE = '/api/v1';
@@ -782,6 +793,77 @@ class ApiClient {
 
   async getExternalChannelsStatus(): Promise<ExternalChannelsStatusResponse> {
     return this.request<ExternalChannelsStatusResponse>('/notifications/external-channels-status');
+  }
+
+  // --- Administration & Configuration (Module 14 - Section 19) ---
+  async getRolesMatrix(): Promise<RoleMatrixResponse> {
+    return this.request<RoleMatrixResponse>('/admin/roles-matrix');
+  }
+
+  async updateRolePermissions(roleId: string, permissionIds: string[]): Promise<RoleMatrixItem> {
+    return this.request<RoleMatrixItem>(`/admin/roles/${roleId}/permissions`, {
+      method: 'PUT',
+      body: JSON.stringify({ permission_ids: permissionIds }),
+    });
+  }
+
+  async createCustomRole(data: { name: string; description?: string; permission_ids: string[] }): Promise<RoleMatrixItem> {
+    return this.request<RoleMatrixItem>('/admin/roles', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getAdminDepartments(): Promise<DepartmentDetailResponse[]> {
+    return this.request<DepartmentDetailResponse[]>('/admin/departments');
+  }
+
+  async createDepartment(data: { code: string; name: string; description?: string }): Promise<DepartmentDetailResponse> {
+    return this.request<DepartmentDetailResponse>('/admin/departments', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getAdminZones(): Promise<ZoneAdminResponse[]> {
+    return this.request<ZoneAdminResponse[]>('/admin/zones');
+  }
+
+  async createZone(data: { code: string; name: string; description?: string; latitude: number; longitude: number }): Promise<ZoneAdminResponse> {
+    return this.request<ZoneAdminResponse>('/admin/zones', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getChecklistTemplates(category?: string): Promise<ChecklistTemplateResponse[]> {
+    const q = category && category !== 'All' ? `?category=${encodeURIComponent(category)}` : '';
+    return this.request<ChecklistTemplateResponse[]>(`/admin/checklist-templates${q}`);
+  }
+
+  async createChecklistTemplate(data: ChecklistTemplateCreateRequest): Promise<ChecklistTemplateResponse> {
+    return this.request<ChecklistTemplateResponse>('/admin/checklist-templates', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getSystemConfig(): Promise<SystemConfigResponse> {
+    return this.request<SystemConfigResponse>('/admin/system-config');
+  }
+
+  async updateSystemConfig(data: SystemConfigUpdateRequest): Promise<SystemConfigResponse> {
+    return this.request<SystemConfigResponse>('/admin/system-config', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async resetDemoData(confirmationCode: string): Promise<DemoDataResetResponse> {
+    return this.request<DemoDataResetResponse>('/admin/demo-data-reset', {
+      method: 'POST',
+      body: JSON.stringify({ confirmation_code: confirmationCode }),
+    });
   }
 }
 

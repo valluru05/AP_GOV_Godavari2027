@@ -22,6 +22,7 @@ import {
   Shield,
   ArrowRightLeft,
   WifiOff,
+  Sliders,
 } from 'lucide-react';
 import { useAuth, DEMO_ACCOUNTS } from '../../context/AuthContext';
 import { Badge } from '../ui/Badge';
@@ -61,6 +62,12 @@ export const AppLayout: React.FC = () => {
     { name: 'Reports', path: '/reports', icon: FileSpreadsheet },
     { name: 'My Tasks', path: '/my-tasks', icon: CheckSquare },
     { name: 'Notifications', path: '/notifications', icon: Bell },
+    {
+      name: 'System Configuration',
+      path: '/admin/system',
+      icon: Sliders,
+      permission: 'users:read',
+    },
     {
       name: 'User Management',
       path: '/admin/users',

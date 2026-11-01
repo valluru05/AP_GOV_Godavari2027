@@ -357,3 +357,30 @@ class Notification(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now, index=True)
 
 
+class SystemSetting(Base):
+    __tablename__ = "system_settings"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    setting_key: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    setting_value: Mapped[Dict[str, Any]] = mapped_column(JSON, default=dict)
+    category: Mapped[str] = mapped_column(String(50), default="general")
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    updated_by: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now, onupdate=get_utc_now)
+
+
+class ChecklistTemplate(Base):
+    __tablename__ = "checklist_templates"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    template_code: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    category: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
+    version: Mapped[str] = mapped_column(String(20), default="v1.0")
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    items: Mapped[List[Dict[str, Any]]] = mapped_column(JSON, default=list)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now, onupdate=get_utc_now)
+
+

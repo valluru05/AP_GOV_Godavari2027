@@ -9,6 +9,7 @@ import { UnauthorizedPage } from './features/auth/UnauthorizedPage';
 import { NotFoundPage } from './features/auth/NotFoundPage';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 import { UsersPage } from './features/administration/UsersPage';
+import { AdminHubPage } from './features/administration/AdminHubPage';
 import { AuditExplorerPage } from './features/audit/AuditExplorerPage';
 import { ProjectListPage } from './features/projects/ProjectListPage';
 import { ProjectDetailPage } from './features/projects/ProjectDetailPage';
@@ -51,12 +52,20 @@ export const App: React.FC = () => {
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<DashboardPage />} />
 
-              {/* Module 1 Administration & Security */}
+              {/* Module 1 & 14 Administration, Governance & Security */}
               <Route
                 path="/admin/users"
                 element={
                   <ProtectedRoute requiredPermission="users:read">
                     <UsersPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/system"
+                element={
+                  <ProtectedRoute requiredPermission="users:read">
+                    <AdminHubPage />
                   </ProtectedRoute>
                 }
               />
