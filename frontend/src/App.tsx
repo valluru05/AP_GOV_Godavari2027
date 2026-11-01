@@ -22,6 +22,7 @@ import { AssetListPage } from './features/assets/AssetListPage';
 import { AssetDetailPage } from './features/assets/AssetDetailPage';
 import { ReadinessDashboardPage } from './features/readiness/ReadinessDashboardPage';
 import { DependencyGraphPage } from './features/dependencies/DependencyGraphPage';
+import { MapPage } from './features/map/MapPage';
 import { ModulePlaceholderPage } from './components/layout/ModulePlaceholderPage';
 
 const queryClient = new QueryClient();
@@ -86,16 +87,9 @@ export const App: React.FC = () => {
               <Route path="/readiness" element={<ReadinessDashboardPage />} />
               {/* Module 9 Readiness Dependency Graph & Risk Engine */}
               <Route path="/dependencies" element={<DependencyGraphPage />} />
-              <Route
-                path="/map"
-                element={
-                  <ModulePlaceholderPage
-                    moduleNumber={10}
-                    moduleTitle="Geographic Map & Zone Monitoring"
-                    description="Interactive Leaflet map showing Rajamahendravaram ghats, assets, and works."
-                  />
-                }
-              />
+              {/* Module 10 Geographic Map & Zone Monitoring */}
+              <Route path="/map" element={<MapPage />} />
+
               <Route
                 path="/reports"
                 element={

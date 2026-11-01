@@ -393,7 +393,9 @@ def run_seed_if_empty(db: Session):
         planned_completion_date=today + timedelta(days=15),
         current_status="In Progress",
         priority="Critical",
-        funding_reference="AP-GODAVARI-2027-WTR-01"
+        funding_reference="AP-GODAVARI-2027-WTR-01",
+        latitude=16.9944,
+        longitude=81.7678
     )
 
     # Project 2: Sanitation block
@@ -410,7 +412,9 @@ def run_seed_if_empty(db: Session):
         planned_completion_date=today - timedelta(days=5),
         current_status="Verification Pending",
         priority="High",
-        funding_reference="AP-GODAVARI-2027-SANI-04"
+        funding_reference="AP-GODAVARI-2027-SANI-04",
+        latitude=17.0012,
+        longitude=81.7742
     )
 
     # Project 3: High-mast lighting
@@ -427,7 +431,9 @@ def run_seed_if_empty(db: Session):
         planned_completion_date=today + timedelta(days=30),
         current_status="In Progress",
         priority="Medium",
-        funding_reference="AP-GODAVARI-2027-ELEC-09"
+        funding_reference="AP-GODAVARI-2027-ELEC-09",
+        latitude=16.9950,
+        longitude=81.7690
     )
 
     # Project 4: Riverbank Barricading
@@ -444,7 +450,9 @@ def run_seed_if_empty(db: Session):
         planned_completion_date=today - timedelta(days=10),
         current_status="Delayed",
         priority="Critical",
-        funding_reference="AP-GODAVARI-2027-SAFE-12"
+        funding_reference="AP-GODAVARI-2027-SAFE-12",
+        latitude=16.9880,
+        longitude=81.7610
     )
 
     for p in [p1, p2, p3, p4]:

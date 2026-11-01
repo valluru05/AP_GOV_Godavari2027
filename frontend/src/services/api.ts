@@ -44,6 +44,11 @@ import type {
   DelayImpactSimulationResponse,
   AddDependencyRequest,
 } from '../types/dependency';
+import type {
+  MapFeatureCollection,
+  ZoneGeoBoundary,
+  MapFilterParams,
+} from '../types/map';
 
 
 const API_BASE = '/api/v1';
@@ -635,6 +640,22 @@ class ApiClient {
     return this.request<any>(`/dependencies${qs}`, {
       method: 'DELETE',
     });
+  }
+
+  // --- Geographic Map & Zone Monitoring (Module 10) ---
+  async getMapFeatures(params?: MapFilterParams): Promise<MapFeatureCollection> {
+    const q = new URLSearchParams();
+    if (params?.zone_id && params.zone_id !== 'All') q.append('zone_id', params.zone_id);
+    if (params?.entity_type && params.entity_type !== 'All') q.append('entity_type', params.entity_type);
+    if (params?.category && params.category !== 'All') q.append('category', params.category);
+    if (params?.status && params.status !== 'All') q.append('status', params.status);
+    if (params?.search) q.append('search', params.search);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return this.request<MapFeatureCollection>(`/map/features${qs}`);
+  }
+
+  async getMapZones(): Promise<ZoneGeoBoundary[]> {
+    return this.request<ZoneGeoBoundary[]>('/map/zones');
   }
 }
 

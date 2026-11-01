@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from app.core.config import settings
 from app.db.session import engine, SessionLocal
 from app.models import Base
-from app.api.v1 import auth, users, audit, dashboard, projects, vendors, inspections, defects, assets, readiness, dependencies
+from app.api.v1 import auth, users, audit, dashboard, projects, vendors, inspections, defects, assets, readiness, dependencies, map
 from scripts.seed_demo_data import run_seed_if_empty
 
 from contextlib import asynccontextmanager
@@ -83,6 +83,7 @@ app.include_router(defects.router, prefix=settings.API_V1_STR)
 app.include_router(assets.router, prefix=settings.API_V1_STR)
 app.include_router(readiness.router, prefix=settings.API_V1_STR)
 app.include_router(dependencies.router, prefix=settings.API_V1_STR)
+app.include_router(map.router, prefix=settings.API_V1_STR)
 
 
 
