@@ -284,17 +284,35 @@ class Asset(Base):
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     category: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    department: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    location_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
     zone_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("zones.id"), nullable=True)
     project_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("projects.id"), nullable=True)
     work_package_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("work_packages.id"), nullable=True)
+    responsible_manager_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
+    
+    # State machine: Planned | Procurement Pending | Installation Pending | Installed | Inspection Pending | Verification Failed | Accepted | Operationally Ready | Maintenance Required | Out of Service | Retired
     lifecycle_status: Mapped[str] = mapped_column(String(60), default="Planned", index=True)
     qr_identifier: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    serial_number: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    model_number: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    
     installation_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     commissioning_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     latitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     longitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    
+    maintenance_history: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSON, default=list)
+    supporting_evidence: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSON, default=list)
+    readiness_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now, onupdate=get_utc_now)
 
     zone: Mapped[Optional[Zone]] = relationship("Zone", back_populates="assets", lazy="joined")
     project: Mapped[Optional[Project]] = relationship("Project", back_populates="assets")
     work_package: Mapped[Optional[WorkPackage]] = relationship("WorkPackage", back_populates="assets")
+    responsible_manager: Mapped[Optional["User"]] = relationship("User", foreign_keys=[responsible_manager_id], lazy="joined")
+    defects: Mapped[List["Defect"]] = relationship("Defect", foreign_keys="Defect.asset_id", lazy="selectin", overlaps="asset")
+    inspections: Mapped[List["Inspection"]] = relationship("Inspection", foreign_keys="Inspection.asset_id", lazy="selectin", overlaps="asset")
+

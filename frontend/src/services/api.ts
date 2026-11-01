@@ -21,6 +21,16 @@ import type {
   DefectReinspectRequest,
   DefectCloseRequest,
 } from '../types/defect';
+import type {
+  Asset,
+  AssetStats,
+  AssetCreateRequest,
+  AssetUpdateRequest,
+  AssetTransitionRequest,
+  AssetMaintenanceRequest,
+  AssetEvidenceRequest,
+  AssetQRLabel
+} from '../types/asset';
 
 
 const API_BASE = '/api/v1';
@@ -479,6 +489,75 @@ class ApiClient {
 
   async closeDefect(id: string, payload: DefectCloseRequest): Promise<Defect> {
     return this.request<Defect>(`/defects/${id}/close`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  // --- Module 7 Municipal Asset Registry & QR Traceability APIs ---
+  async getAssets(params?: {
+    category?: string;
+    lifecycle_status?: string;
+    zone_id?: string;
+    project_id?: string;
+    search?: string;
+  }): Promise<Asset[]> {
+    const q = new URLSearchParams();
+    if (params?.category) q.append('category', params.category);
+    if (params?.lifecycle_status) q.append('lifecycle_status', params.lifecycle_status);
+    if (params?.zone_id) q.append('zone_id', params.zone_id);
+    if (params?.project_id) q.append('project_id', params.project_id);
+    if (params?.search) q.append('search', params.search);
+    const query = q.toString() ? `?${q.toString()}` : '';
+    return this.request<Asset[]>(`/assets${query}`);
+  }
+
+  async getAssetStats(): Promise<AssetStats> {
+    return this.request<AssetStats>('/assets/stats');
+  }
+
+  async getAsset(id: string): Promise<Asset> {
+    return this.request<Asset>(`/assets/${id}`);
+  }
+
+  async lookupAssetByQR(qrIdentifier: string): Promise<Asset> {
+    return this.request<Asset>(`/assets/lookup/qr/${encodeURIComponent(qrIdentifier)}`);
+  }
+
+  async getAssetQRLabel(id: string): Promise<AssetQRLabel> {
+    return this.request<AssetQRLabel>(`/assets/${id}/qr-label`);
+  }
+
+  async createAsset(payload: AssetCreateRequest): Promise<Asset> {
+    return this.request<Asset>('/assets', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async updateAsset(id: string, payload: AssetUpdateRequest): Promise<Asset> {
+    return this.request<Asset>(`/assets/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async transitionAsset(id: string, payload: AssetTransitionRequest): Promise<Asset> {
+    return this.request<Asset>(`/assets/${id}/transition`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async addAssetMaintenance(id: string, payload: AssetMaintenanceRequest): Promise<Asset> {
+    return this.request<Asset>(`/assets/${id}/maintenance`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async addAssetEvidence(id: string, payload: AssetEvidenceRequest): Promise<Asset> {
+    return this.request<Asset>(`/assets/${id}/evidence`, {
       method: 'POST',
       body: JSON.stringify(payload),
     });

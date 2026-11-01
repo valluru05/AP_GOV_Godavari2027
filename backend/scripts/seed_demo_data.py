@@ -70,7 +70,7 @@ ROLES_DATA = [
             "milestones:read", "milestones:create", "milestones:edit", "progress:review",
             "inspections:read", "inspections:assign", "inspections:review",
             "defects:read", "defects:create", "defects:reinspect", "defects:close",
-            "assets:read", "assets:manage",
+            "assets:read", "assets:manage", "assets:transition",
             "readiness:read", "acceptance:approve",
             "reports:read", "reports:export",
             "users:read", "users:manage", "audit:read"
@@ -865,62 +865,169 @@ def run_seed_if_empty(db: Session):
             "id": "ast-001",
             "asset_code": "AST-RO-KOTI-01",
             "name": "RO Water Dispensing Kiosk #1 (Kotilingala)",
-            "category": "Drinking Water Facility",
-            "description": "5000 LPH RO dispensing unit with chilled and ambient faucets",
+            "category": "Drinking-water units",
+            "description": "5000 LPH multi-stage RO purification unit with chilled and ambient faucets, UV sterilizer, and water-quality telemetry.",
+            "department": "Rural Water Supply & Sanitation (RWSS)",
+            "location_name": "Kotilingala Ghat — North Sector Platform 2",
             "zone_id": "zone-koti",
             "project_id": "prj-001",
             "work_package_id": "wp-001",
+            "responsible_manager_id": "user-assets",
+            "serial_number": "SN-RO-5000-2026-081",
+            "model_number": "Kirloskar-RO-5000L",
             "lifecycle_status": "Verification Failed",
             "qr_identifier": "QR-AST-DW-KOTI-001",
             "installation_date": today - timedelta(days=12),
             "latitude": 16.9946,
-            "longitude": 81.7681
+            "longitude": 81.7681,
+            "readiness_notes": "Hydrostatic gasket seal weeping observed during field inspection INSP-2026-DW01-01. Defect DEF-DW-001 logged. Must undergo contractor remediation and inspector re-inspection before commissioning.",
+            "maintenance_history": [
+                {
+                    "service_date": "2026-10-20",
+                    "maintenance_type": "Pre-commissioning Calibration",
+                    "technician_name": "K. Venkat Rao (AP Water Board)",
+                    "summary": "Calibrated flow meters and sensor probes. Pressure gauges zeroed. TDS meter tested against buffer.",
+                    "status": "Completed",
+                    "next_service_due": "2026-11-20"
+                }
+            ],
+            "supporting_evidence": [
+                {
+                    "name": "fat_certificate_ro_5k.pdf",
+                    "caption": "Factory Acceptance Test (FAT) Certificate — Kirloskar Water Systems",
+                    "file_type": "certificate"
+                },
+                {
+                    "name": "site_installation_chiller.jpg",
+                    "caption": "Chiller and booster pump mounted on concrete plinth at Kotilingala",
+                    "file_type": "photo"
+                }
+            ]
         },
         {
             "id": "ast-002",
             "asset_code": "AST-BIO-PUSH-01",
             "name": "40-Bay Bio-Sanitation Complex (Pushkar)",
-            "category": "Sanitation Complex",
-            "description": "Modular stainless steel bio-digester toilet complex with solar lighting",
+            "category": "Sanitation units",
+            "description": "Modular stainless steel bio-digester toilet complex with solar lighting, dedicated tactile ramp access, and greywater recycling.",
+            "department": "Municipal Public Health & Sanitation",
+            "location_name": "Pushkar Ghat — Central Pilgrim Promenade",
             "zone_id": "zone-pushkar",
             "project_id": "prj-002",
             "work_package_id": "wp-003",
+            "responsible_manager_id": "user-assets",
+            "serial_number": "SN-BIO-40B-2026-114",
+            "model_number": "DRDO-BioDigester-40B",
             "lifecycle_status": "Operationally Ready",
             "qr_identifier": "QR-AST-SN-PUSH-040",
             "installation_date": today - timedelta(days=20),
             "commissioning_date": today - timedelta(days=3),
             "latitude": 17.0015,
-            "longitude": 81.7745
+            "longitude": 81.7745,
+            "readiness_notes": "Fully verified by field inspection INSP-2026-SN03-01. Bacterial inoculum active, bio-digesters hermetically sealed, solar lighting active. Commissioned for Pushkaralu 2027 operations.",
+            "maintenance_history": [
+                {
+                    "service_date": "2026-10-25",
+                    "maintenance_type": "Inoculum Charging & Sensor Check",
+                    "technician_name": "R. Satyanarayana (Bio-Tech Specialist)",
+                    "summary": "Charged bio-digester with cold-tolerant anaerobic inoculum. Verified zero odor and negative pressure valves.",
+                    "status": "Completed",
+                    "next_service_due": "2026-12-10"
+                }
+            ],
+            "supporting_evidence": [
+                {
+                    "name": "inoculum_certification.pdf",
+                    "caption": "DRDO Anaerobic Inoculum Purity & Viability Test Certificate",
+                    "file_type": "certificate"
+                },
+                {
+                    "name": "pushkar_bio_toilet_facade.jpg",
+                    "caption": "Completed 40-bay bio-sanitation complex with tactile accessibility ramps",
+                    "file_type": "photo"
+                }
+            ]
         },
         {
             "id": "ast-003",
             "asset_code": "AST-HM-KOTI-01",
             "name": "30m High-Mast Floodlight Tower (Kotilingala)",
-            "category": "Public Lighting Array",
-            "description": "30-meter high-mast tower with 16x 400W LED fixtures and lightning arrester",
+            "category": "Public lighting",
+            "description": "30-meter high-mast polygonal steel tower with 16x 400W LED fixtures, motorized winch system, and copper-bonded earthing.",
+            "department": "Municipal Electrical Engineering Wing",
+            "location_name": "Kotilingala Ghat — Main Vehicle Ingress & Assembly Hub",
             "zone_id": "zone-koti",
             "project_id": "prj-003",
             "work_package_id": "wp-004",
+            "responsible_manager_id": "user-assets",
+            "serial_number": "SN-HM-30M-2026-009",
+            "model_number": "Bajaj-HighMast-30M-LED",
             "lifecycle_status": "Inspection Pending",
             "qr_identifier": "QR-AST-LT-KOTI-030",
             "installation_date": today - timedelta(days=5),
             "latitude": 16.9940,
-            "longitude": 81.7675
+            "longitude": 81.7675,
+            "readiness_notes": "Tower erected and luminaire ring mounted. Earthing pit cover defect DEF-LT-004 closed. Field inspection INSP-2026-LT04-01 scheduled for lux distribution and lightning protection verification.",
+            "maintenance_history": [
+                {
+                    "service_date": "2026-10-28",
+                    "maintenance_type": "Winch Motor & Trailing Cable Test",
+                    "technician_name": "M. Prasad Rao (Electrical Inspector)",
+                    "summary": "Lowered and raised luminaire ring using electric winch. Checked limit switches and aviation obstruction light.",
+                    "status": "Completed",
+                    "next_service_due": "2026-11-28"
+                }
+            ],
+            "supporting_evidence": [
+                {
+                    "name": "highmast_structural_stability_cert.pdf",
+                    "caption": "Structural Stability & Wind-Load Resistance (180 km/h) Certificate",
+                    "file_type": "certificate"
+                },
+                {
+                    "name": "luminaire_ring_elevation.jpg",
+                    "caption": "16x 400W LED luminaire ring at 30-meter elevation",
+                    "file_type": "photo"
+                }
+            ]
         },
         {
             "id": "ast-004",
             "asset_code": "AST-SAFE-SARA-01",
             "name": "Deep-Water Submersible Barricade Sector C",
-            "category": "River Safety Installation",
-            "description": "120-meter interlocking marine steel barrier with high-visibility foam buoys",
+            "category": "River safety installation",
+            "description": "120-meter interlocking marine steel barrier with high-visibility foam buoys, concrete sinkers, and stainless mooring chains.",
+            "department": "Irrigation & Water Resources Department (WRD)",
+            "location_name": "Saraswati Ghat — Riverfront Sector C (Bathing Zone)",
             "zone_id": "zone-saraswati",
             "project_id": "prj-004",
             "work_package_id": "wp-005",
+            "responsible_manager_id": "user-assets",
+            "serial_number": "SN-BAR-120M-2026-042",
+            "model_number": "MarineSteel-Interlock-120",
             "lifecycle_status": "Maintenance Required",
             "qr_identifier": "QR-AST-SF-SARA-120",
             "installation_date": today - timedelta(days=15),
             "latitude": 16.9882,
-            "longitude": 81.7612
+            "longitude": 81.7612,
+            "readiness_notes": "Defect DEF-SF-002 reported mooring cable slack and tidal anchor pin play. Assigned to AP Infra Projects for retensioning and anode check.",
+            "maintenance_history": [
+                {
+                    "service_date": "2026-10-18",
+                    "maintenance_type": "Quarterly Mooring & Buoy Inspection",
+                    "technician_name": "Diver K. Somasekhar (Marine Wing)",
+                    "summary": "Sub-surface diver inspection of concrete sinker blocks. Identified 15% anchor chain play in sector 4.",
+                    "status": "Maintenance Required",
+                    "next_service_due": "2026-11-05"
+                }
+            ],
+            "supporting_evidence": [
+                {
+                    "name": "underwater_anchor_inspection.jpg",
+                    "caption": "Diver camera view of riverbed concrete sinker and chain link",
+                    "file_type": "photo"
+                }
+            ]
         }
     ]
 

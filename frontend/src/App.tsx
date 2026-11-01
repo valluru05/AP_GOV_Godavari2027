@@ -18,6 +18,8 @@ import { InspectionListPage } from './features/inspections/InspectionListPage';
 import { InspectionDetailPage } from './features/inspections/InspectionDetailPage';
 import { DefectListPage } from './features/defects/DefectListPage';
 import { DefectDetailPage } from './features/defects/DefectDetailPage';
+import { AssetListPage } from './features/assets/AssetListPage';
+import { AssetDetailPage } from './features/assets/AssetDetailPage';
 import { ModulePlaceholderPage } from './components/layout/ModulePlaceholderPage';
 
 const queryClient = new QueryClient();
@@ -75,16 +77,9 @@ export const App: React.FC = () => {
               {/* Module 6 Defects, Corrective Action, & Rework */}
               <Route path="/defects" element={<DefectListPage />} />
               <Route path="/defects/:id" element={<DefectDetailPage />} />
-              <Route
-                path="/assets"
-                element={
-                  <ModulePlaceholderPage
-                    moduleNumber={7}
-                    moduleTitle="Municipal Asset Registry & QR Traceability"
-                    description="Asset inventory, QR label generation, camera QR scanning, and physical readiness status."
-                  />
-                }
-              />
+              {/* Module 7 Municipal Asset Registry & QR Traceability */}
+              <Route path="/assets" element={<AssetListPage />} />
+              <Route path="/assets/:id" element={<AssetDetailPage />} />
               <Route
                 path="/readiness"
                 element={
