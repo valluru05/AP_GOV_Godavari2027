@@ -1,10 +1,13 @@
 from datetime import datetime, date
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, TYPE_CHECKING
 from sqlalchemy import (
     String, Boolean, DateTime, Date, Integer, Float, ForeignKey, Text, JSON, Table, Column
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base, generate_uuid, get_utc_now
+
+if TYPE_CHECKING:
+    from app.models.user import User
 
 # Milestone dependency directed graph relationship (milestone_id depends on depends_on_id)
 milestone_dependencies = Table(
@@ -227,17 +230,49 @@ class Defect(Base):
     defect_id: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
     work_package_id: Mapped[str] = mapped_column(String(36), ForeignKey("work_packages.id"), index=True, nullable=False)
     inspection_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("inspections.id"), nullable=True)
+    checklist_item_ref: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    asset_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("assets.id"), nullable=True)
+    assigned_vendor_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("vendors.id"), nullable=True)
+
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[Text] = mapped_column(Text, nullable=False)
     category: Mapped[str] = mapped_column(String(100), default="Quality & Safety")
-    severity: Mapped[str] = mapped_column(String(30), default="High", index=True)
-    status: Mapped[str] = mapped_column(String(50), default="Open", index=True)
+    severity: Mapped[str] = mapped_column(String(30), default="High", index=True)  # Critical | High | Medium | Low
+    status: Mapped[str] = mapped_column(String(60), default="Open", index=True)  # Open | Assigned | Acknowledged | In Progress | Correction Submitted | Verification Pending | Rejected — Rework Required | Resolved — Verification Passed | Closed by Authorised User
+
     target_resolution_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     reported_by_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
+
+    # Initial defect photographic/document evidence
+    evidence_attachments: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSON, default=list)
+
+    # Contractor / Vendor Rework Submission details
+    resolution_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    rework_evidence: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSON, default=list)
+    rework_count: Mapped[int] = mapped_column(Integer, default=0)
+
+    # Quality Inspector Re-inspection and Verification findings
+    verification_result: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)  # Pass | Fail | Pending
+    verification_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    verified_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    verified_by_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
+
+    # Official Administrative Closure
+    closed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    closed_by_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
+
+    # Chronological lifecycle audit history
+    history: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSON, default=list)
+
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=get_utc_now)
 
     work_package: Mapped[WorkPackage] = relationship("WorkPackage", back_populates="defects")
     inspection: Mapped[Optional["Inspection"]] = relationship("Inspection", back_populates="defects")
+    asset: Mapped[Optional["Asset"]] = relationship("Asset")
+    vendor: Mapped[Optional["Vendor"]] = relationship("Vendor")
+    reported_by: Mapped[Optional["User"]] = relationship("User", foreign_keys=[reported_by_id])
+    verified_by: Mapped[Optional["User"]] = relationship("User", foreign_keys=[verified_by_id])
+    closed_by: Mapped[Optional["User"]] = relationship("User", foreign_keys=[closed_by_id])
 
 
 

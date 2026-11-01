@@ -13,6 +13,14 @@ import type {
   InspectionExecuteRequest,
   InspectionReviewRequest,
 } from '../types/inspection';
+import type {
+  Defect,
+  DefectStats,
+  DefectCreateRequest,
+  DefectVendorReworkRequest,
+  DefectReinspectRequest,
+  DefectCloseRequest,
+} from '../types/defect';
 
 
 const API_BASE = '/api/v1';
@@ -414,6 +422,64 @@ class ApiClient {
   async reviewInspection(id: string, payload: InspectionReviewRequest): Promise<Inspection> {
     return this.request<Inspection>(`/inspections/${id}/review`, {
       method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  // --- Module 6: Defects, Corrective Action & Rework APIs ---
+  async getDefects(params?: {
+    work_package_id?: string;
+    project_id?: string;
+    vendor_id?: string;
+    severity?: string;
+    status?: string;
+    zone_id?: string;
+    search?: string;
+  }): Promise<Defect[]> {
+    const q = new URLSearchParams();
+    if (params?.work_package_id) q.append('work_package_id', params.work_package_id);
+    if (params?.project_id) q.append('project_id', params.project_id);
+    if (params?.vendor_id) q.append('vendor_id', params.vendor_id);
+    if (params?.severity) q.append('severity', params.severity);
+    if (params?.status) q.append('status', params.status);
+    if (params?.zone_id) q.append('zone_id', params.zone_id);
+    if (params?.search) q.append('search', params.search);
+    const query = q.toString() ? `?${q.toString()}` : '';
+    return this.request<Defect[]>(`/defects${query}`);
+  }
+
+  async getDefectStats(): Promise<DefectStats> {
+    return this.request<DefectStats>('/defects/stats');
+  }
+
+  async getDefect(id: string): Promise<Defect> {
+    return this.request<Defect>(`/defects/${id}`);
+  }
+
+  async createDefect(payload: DefectCreateRequest): Promise<Defect> {
+    return this.request<Defect>('/defects', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async submitDefectRework(id: string, payload: DefectVendorReworkRequest): Promise<Defect> {
+    return this.request<Defect>(`/defects/${id}/rework`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async reinspectDefect(id: string, payload: DefectReinspectRequest): Promise<Defect> {
+    return this.request<Defect>(`/defects/${id}/reinspect`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async closeDefect(id: string, payload: DefectCloseRequest): Promise<Defect> {
+    return this.request<Defect>(`/defects/${id}/close`, {
+      method: 'POST',
       body: JSON.stringify(payload),
     });
   }

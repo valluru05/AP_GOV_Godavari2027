@@ -69,7 +69,7 @@ ROLES_DATA = [
             "projects:read", "projects:create", "projects:edit", "projects:assign",
             "milestones:read", "milestones:create", "milestones:edit", "progress:review",
             "inspections:read", "inspections:assign", "inspections:review",
-            "defects:read", "defects:close",
+            "defects:read", "defects:create", "defects:reinspect", "defects:close",
             "assets:read", "assets:manage",
             "readiness:read", "acceptance:approve",
             "reports:read", "reports:export",
@@ -85,7 +85,7 @@ ROLES_DATA = [
             "milestones:read", "milestones:create", "milestones:edit",
             "progress:review",
             "inspections:read", "inspections:assign",
-            "defects:read",
+            "defects:read", "defects:create",
             "assets:read",
             "readiness:read",
             "reports:read", "reports:export",
@@ -674,37 +674,187 @@ def run_seed_if_empty(db: Session):
     db.commit()
 
 
-    # Defects
-    # Defect 1: Critical blocking defect on WP1
+    # Defects (Module 6 Demo Scenarios)
+    # Defect 1: Critical blocking defect on WP1 (Hydrostatic pressure failure)
     d1 = Defect(
         id="def-001",
         defect_id="DEF-DW-001",
         work_package_id="wp-001",
         inspection_id="insp-001",
+        checklist_item_ref="Hydrostatic pressure test sustained for 30 mins",
+        asset_id="ast-001",
+        assigned_vendor_id="vnd-001",
         title="High-Pressure Manifold Gasket Failure & RO Seepage",
-        description="Gasket seal at secondary manifold inlet ruptured under 4.2 bar test pressure, releasing untreated groundwater into clean distribution basin.",
+        description="Gasket seal at secondary manifold inlet ruptured under 4.2 bar test pressure (requires 6.0 bar), releasing untreated groundwater into clean distribution basin.",
         category="Hydraulic Quality & Safety",
         severity="Critical",
         status="Open",
         target_resolution_date=today + timedelta(days=2),
-        reported_by_id="user-inspector"
+        reported_by_id="user-inspector",
+        evidence_attachments=[
+            {"name": "Gasket_Joint_Seepage.jpg", "caption": "Active water seepage at joint 3B manifold", "url": "/evidence/gasket_seepage.jpg", "timestamp": (datetime.now(timezone.utc) - timedelta(days=3)).isoformat()},
+            {"name": "Pressure_Gauge_Reading_Fail.jpg", "caption": "Pressure drop observed at 4.2 bar", "url": "/evidence/pressure_gauge.jpg", "timestamp": (datetime.now(timezone.utc) - timedelta(days=3)).isoformat()}
+        ],
+        rework_count=0,
+        history=[
+            {
+                "timestamp": (datetime.now(timezone.utc) - timedelta(days=3)).isoformat(),
+                "action": "DEFECT_RECORDED",
+                "actor_id": "user-inspector",
+                "actor_name": "M. Suresh Kumar (Field Inspector)",
+                "from_status": None,
+                "to_status": "Open",
+                "notes": "Logged from failed mandatory hydrostatic pressure test on WP-DW-KOTI-01."
+            }
+        ]
     )
 
-    # Defect 2: High defect on WP5 (Barricading)
+    # Defect 2: High defect on WP5 (Mooring Cable Slack on riverbank barricading)
     d2 = Defect(
         id="def-002",
         defect_id="DEF-SF-002",
         work_package_id="wp-005",
-        title="Mooring Cable Tensile Slack & Corrosion on Anchor #4",
-        description="Anchor bolt show signs of saline corrosion and cable tension is 35% below safety threshold for fast-flowing river currents.",
+        assigned_vendor_id="vnd-001",
+        title="Mooring Cable Tensile Slack & Saline Corrosion on Anchor #4",
+        description="Anchor bolt shows signs of saline corrosion and cable tension is 35% below design safety threshold for fast-flowing Godavari river currents.",
         category="Structural Safety",
         severity="High",
         status="Assigned",
         target_resolution_date=today + timedelta(days=3),
-        reported_by_id="user-inspector"
+        reported_by_id="user-inspector",
+        evidence_attachments=[
+            {"name": "Corroded_Anchor_Bolt.jpg", "caption": "Corrosion pitting on galvanized anchor bolt", "url": "/evidence/anchor_bolt.jpg"}
+        ],
+        rework_count=0,
+        history=[
+            {
+                "timestamp": (datetime.now(timezone.utc) - timedelta(days=5)).isoformat(),
+                "action": "DEFECT_RECORDED",
+                "actor_id": "user-inspector",
+                "actor_name": "M. Suresh Kumar (Field Inspector)",
+                "from_status": None,
+                "to_status": "Open",
+                "notes": "Field observation during routine riverbank stability check."
+            },
+            {
+                "timestamp": (datetime.now(timezone.utc) - timedelta(days=4)).isoformat(),
+                "action": "DEFECT_ASSIGNED",
+                "actor_id": "user-muniadmin",
+                "actor_name": "Dr. K. S. Rao (Municipal Administrator)",
+                "from_status": "Open",
+                "to_status": "Assigned",
+                "notes": "Assigned to Godavari Infra Engineering with 3-day resolution target."
+            }
+        ]
     )
 
-    for d in [d1, d2]:
+    # Defect 3: Medium defect on WP3 — Correction Submitted by Vendor, Awaiting Inspector Re-inspection!
+    d3 = Defect(
+        id="def-003",
+        defect_id="DEF-SN-003",
+        work_package_id="wp-003",
+        asset_id="ast-002",
+        assigned_vendor_id="vnd-003",
+        title="Tactile Ramp Non-Slip Strip Detachment at Pushkar Ghat Block B",
+        description="Non-slip abrasive rubberized tread detached along disabled access ramp, presenting slip-and-fall hazard for elderly pilgrims.",
+        category="Sanitation & Public Accessibility",
+        severity="Medium",
+        status="Correction Submitted",
+        target_resolution_date=today + timedelta(days=1),
+        reported_by_id="user-inspector",
+        evidence_attachments=[
+            {"name": "Ramp_Tread_Detached.jpg", "caption": "Detached non-slip tread at ramp entry", "url": "/evidence/ramp_detached.jpg"}
+        ],
+        resolution_notes="Removed damaged strip, cleaned concrete foundation, applied industrial marine-grade epoxy adhesive, and secured with stainless steel mechanical expansion fasteners along the entire 12-meter ramp run.",
+        rework_evidence=[
+            {"name": "Re_Anchored_Tread_Proof.jpg", "caption": "Re-anchored and mechanically riveted tactile strip", "url": "/evidence/re_anchored.jpg", "timestamp": (datetime.now(timezone.utc) - timedelta(hours=6)).isoformat()}
+        ],
+        rework_count=1,
+        history=[
+            {
+                "timestamp": (datetime.now(timezone.utc) - timedelta(days=6)).isoformat(),
+                "action": "DEFECT_RECORDED",
+                "actor_id": "user-inspector",
+                "actor_name": "M. Suresh Kumar (Field Inspector)",
+                "from_status": None,
+                "to_status": "Open",
+                "notes": "Identified during accessibility compliance audit."
+            },
+            {
+                "timestamp": (datetime.now(timezone.utc) - timedelta(days=5)).isoformat(),
+                "action": "DEFECT_ASSIGNED",
+                "actor_id": "user-muniadmin",
+                "actor_name": "Dr. K. S. Rao (Municipal Administrator)",
+                "from_status": "Open",
+                "to_status": "Assigned",
+                "notes": "Assigned to Sri Lakshmi Sanitation Works."
+            },
+            {
+                "timestamp": (datetime.now(timezone.utc) - timedelta(hours=6)).isoformat(),
+                "action": "CORRECTION_SUBMITTED",
+                "actor_id": "user-vendor",
+                "actor_name": "Rajesh Varma (Contractor Representative)",
+                "from_status": "Assigned",
+                "to_status": "Correction Submitted",
+                "notes": "Rework executed and photographic evidence attached. Requesting on-site re-inspection."
+            }
+        ]
+    )
+
+    # Defect 4: Low defect on WP4 — Resolved and Closed
+    d4 = Defect(
+        id="def-004",
+        defect_id="DEF-LT-004",
+        work_package_id="wp-004",
+        asset_id="ast-003",
+        assigned_vendor_id="vnd-004",
+        title="Cracked Earthing Pit Chamber Masonry Cover",
+        description="Pre-cast cement cover on Earthing Pit #2 sustained hairline fracture during mast winch delivery.",
+        category="Electrical Safety",
+        severity="Low",
+        status="Closed by Authorised User",
+        target_resolution_date=today - timedelta(days=4),
+        reported_by_id="user-inspector",
+        resolution_notes="Replaced broken cover with heavy-duty ductile iron access plate rated for 5-tonne vehicular axle loading.",
+        rework_count=1,
+        verification_result="Pass",
+        verification_notes="Re-inspected on-site. New ductile iron plate verified flush with ground surface.",
+        verified_at=datetime.now(timezone.utc) - timedelta(days=3),
+        verified_by_id="user-inspector",
+        closed_at=datetime.now(timezone.utc) - timedelta(days=2),
+        closed_by_id="user-muniadmin",
+        history=[
+            {
+                "timestamp": (datetime.now(timezone.utc) - timedelta(days=8)).isoformat(),
+                "action": "DEFECT_RECORDED",
+                "actor_id": "user-inspector",
+                "actor_name": "M. Suresh Kumar (Field Inspector)",
+                "from_status": None,
+                "to_status": "Open",
+                "notes": "Cracked cover logged during site preparation."
+            },
+            {
+                "timestamp": (datetime.now(timezone.utc) - timedelta(days=3)).isoformat(),
+                "action": "REINSPECT_VERIFIED_PASS",
+                "actor_id": "user-inspector",
+                "actor_name": "M. Suresh Kumar (Field Inspector)",
+                "from_status": "Correction Submitted",
+                "to_status": "Resolved — Verification Passed",
+                "notes": "On-site verification passed. Iron plate securely installed."
+            },
+            {
+                "timestamp": (datetime.now(timezone.utc) - timedelta(days=2)).isoformat(),
+                "action": "DEFECT_CLOSED",
+                "actor_id": "user-muniadmin",
+                "actor_name": "Dr. K. S. Rao (Municipal Administrator)",
+                "from_status": "Resolved — Verification Passed",
+                "to_status": "Closed by Authorised User",
+                "notes": "Final administrative sign-off granted."
+            }
+        ]
+    )
+
+    for d in [d1, d2, d3, d4]:
         if not db.query(Defect).filter(Defect.id == d.id).first():
             db.add(d)
     db.commit()

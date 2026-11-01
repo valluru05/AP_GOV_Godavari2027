@@ -16,6 +16,8 @@ import { VendorListPage } from './features/vendors/VendorListPage';
 import { VendorDashboardPage } from './features/vendors/VendorDashboardPage';
 import { InspectionListPage } from './features/inspections/InspectionListPage';
 import { InspectionDetailPage } from './features/inspections/InspectionDetailPage';
+import { DefectListPage } from './features/defects/DefectListPage';
+import { DefectDetailPage } from './features/defects/DefectDetailPage';
 import { ModulePlaceholderPage } from './components/layout/ModulePlaceholderPage';
 
 const queryClient = new QueryClient();
@@ -70,16 +72,9 @@ export const App: React.FC = () => {
               {/* Module 5 Field Verification and Mobile Inspections */}
               <Route path="/inspections" element={<InspectionListPage />} />
               <Route path="/inspections/:id" element={<InspectionDetailPage />} />
-              <Route
-                path="/defects"
-                element={
-                  <ModulePlaceholderPage
-                    moduleNumber={6}
-                    moduleTitle="Defects, Corrective Action, & Rework"
-                    description="Defect logging, vendor rework submissions, re-inspection verification, and closure."
-                  />
-                }
-              />
+              {/* Module 6 Defects, Corrective Action, & Rework */}
+              <Route path="/defects" element={<DefectListPage />} />
+              <Route path="/defects/:id" element={<DefectDetailPage />} />
               <Route
                 path="/assets"
                 element={
