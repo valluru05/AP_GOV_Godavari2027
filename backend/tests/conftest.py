@@ -22,6 +22,12 @@ def _reset_test_state():
             wp1.verified_progress_percentage = 0.0
             wp1.reported_progress_percentage = 100.0
 
+        wp2 = db.query(WorkPackage).filter(WorkPackage.id == "wp-002").first()
+        if wp2:
+            wp2.workflow_state = "In Progress"
+            wp2.verified_progress_percentage = 50.0
+            wp2.reported_progress_percentage = 60.0
+
         insp1 = db.query(Inspection).filter(Inspection.id == "insp-001").first()
         if insp1:
             insp1.outcome = "Failed"

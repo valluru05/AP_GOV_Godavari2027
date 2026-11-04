@@ -1,0 +1,27 @@
+{
+  "name": "CivicProof — Infrastructure Readiness & Asset Accountability",
+  "short_name": "CivicProof",
+  "description": "Field-Verified Infrastructure Readiness & Asset Accountability Platform for Godavari Pushkaralu 2027.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F5F7FA",
+  "theme_color": "#1E3A8A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["government", "productivity", "utilities"]
+}
+

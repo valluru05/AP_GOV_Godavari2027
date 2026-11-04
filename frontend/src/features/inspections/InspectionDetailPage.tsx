@@ -94,22 +94,23 @@ export const InspectionDetailPage: React.FC = () => {
   }, [id]);
 
   const handleSimulateGPS = () => {
-    // If browser supports geolocation, try to capture or fall back to high-precision Pushkaralu sector coordinates
+    // If browser supports geolocation, capture real-world device coordinates or fall back to Pushkaralu sector
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          // Use realistic Kotilingala coordinates for demo consistency
-          setExecLat(16.9944);
-          setExecLng(81.7678);
+          setExecLat(Number(pos.coords.latitude.toFixed(6)));
+          setExecLng(Number(pos.coords.longitude.toFixed(6)));
           setExecAccuracy(Number(pos.coords.accuracy.toFixed(1)) || 3.5);
-          setGpsSimulated(true);
+          setGpsSimulated(false);
         },
-        () => {
+        (err) => {
+          console.warn('GPS hardware read fallback to Rajamahendravaram sector default:', err);
           setExecLat(16.9944);
           setExecLng(81.7678);
           setExecAccuracy(3.5);
           setGpsSimulated(true);
-        }
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
       );
     } else {
       setExecLat(16.9944);
@@ -130,6 +131,35 @@ export const InspectionDetailPage: React.FC = () => {
     };
     setExecPhotos((prev) => [...prev, newPhoto]);
     setPhotoCaption('');
+  };
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Photo exceeds 10MB limit. Please choose a smaller image.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      const newPhoto: EvidencePhoto = {
+        name: file.name,
+        caption: photoCaption.trim() || `Field Photo ${execPhotos.length + 1}`,
+        timestamp: new Date().toISOString(),
+        lat: execLat,
+        lng: execLng,
+        url: dataUrl,
+      };
+      setExecPhotos((prev) => [...prev, newPhoto]);
+      setPhotoCaption('');
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    setExecPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleExecuteSubmit = async (e: React.FormEvent) => {
@@ -789,7 +819,7 @@ export const InspectionDetailPage: React.FC = () => {
             <label className="block text-xs font-semibold text-slate-700">
               Attach Geotagged Site Evidence
             </label>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 placeholder="Photo caption (e.g. Manifold pressure gauge reading 6.0 bar)"
@@ -797,19 +827,63 @@ export const InspectionDetailPage: React.FC = () => {
                 onChange={(e) => setPhotoCaption(e.target.value)}
                 className="flex-1 text-xs border border-slate-200 rounded p-2 bg-white"
               />
-              <Button
-                type="button"
-                size="sm"
-                variant="secondary"
-                onClick={handleAddPhoto}
-                className="text-xs"
-              >
-                Attach Photo
-              </Button>
+              <div className="flex gap-2">
+                <label className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 rounded text-xs font-medium cursor-pointer transition-colors shrink-0">
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>Snap / Upload</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handlePhotoUpload}
+                    className="hidden"
+                  />
+                </label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleAddPhoto}
+                  className="text-xs"
+                >
+                  Add Note Tag
+                </Button>
+              </div>
             </div>
+
+            {/* Staged photos preview */}
             {execPhotos.length > 0 && (
-              <div className="text-[11px] text-emerald-700 font-medium">
-                {execPhotos.length} photo(s) staged with geolocation metadata.
+              <div className="mt-2 space-y-1.5 max-h-36 overflow-y-auto p-2 bg-slate-50 border border-slate-200 rounded">
+                <div className="text-[11px] text-emerald-700 font-medium">
+                  {execPhotos.length} photo evidence record(s) staged:
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {execPhotos.map((photo, pIdx) => (
+                    <div key={pIdx} className="flex items-center justify-between p-1.5 bg-white border border-slate-200 rounded text-xs">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        {photo.url ? (
+                          <img src={photo.url} alt="Staged" className="w-8 h-8 object-cover rounded shrink-0 border border-slate-200" />
+                        ) : (
+                          <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
+                            <Camera className="w-4 h-4" />
+                          </div>
+                        )}
+                        <div className="truncate">
+                          <p className="font-semibold text-slate-700 text-[11px] truncate">{photo.caption || photo.name}</p>
+                          <p className="text-[10px] text-slate-400">{photo.name}</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemovePhoto(pIdx)}
+                        className="text-slate-400 hover:text-rose-600 text-xs px-1 font-bold ml-1"
+                        title="Remove photo"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

@@ -124,16 +124,35 @@ npm run dev -- --port 5173
 
 ---
 
-## Containerized Deployment (Docker Compose)
+## Containerized Production Deployment (Docker Compose)
 
-Spin up the entire production-grade stack with one command:
+Spin up the complete production-grade stack (PostgreSQL 16, multi-worker FastAPI backend, and hardened Nginx frontend SPA) with one command:
 ```bash
-# Build and run containers in background
+# 1. Copy environment configuration
+cp .env.example .env
+
+# 2. Build and launch all containers in background
 docker compose up -d --build
 ```
-- **Frontend SPA (Nginx):** [http://localhost:80](http://localhost:80)
-- **FastAPI Backend:** [http://localhost:8008](http://localhost:8008)
-- **OpenAPI Docs:** [http://localhost:8008/docs](http://localhost:8008/docs)
+- **Frontend SPA & PWA (Nginx):** [http://localhost:80](http://localhost:80)
+- **FastAPI Multi-Worker Backend:** [http://localhost:8008](http://localhost:8008)
+- **PostgreSQL 16 Relational DB:** `localhost:5432`
+- **OpenAPI Interactive Documentation:** [http://localhost:8008/docs](http://localhost:8008/docs)
+- **Deep Health & Readiness Check:** [http://localhost:8008/health](http://localhost:8008/health)
+
+---
+
+## Production Security & Architecture Hardening
+
+CivicProof includes enterprise-grade hardening for real-world municipal infrastructure deployments:
+- **Argon2id & JWT Authentication:** Resistant to GPU/ASIC attacks with configurable 24-hour expiration.
+- **Sliding-Window Rate Limiting:** Built-in protection on `/auth/login` and `/auth/reset-password` against brute-force credential stuffing.
+- **HTTP Security Headers:** Injected by both FastAPI and Nginx (`X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-XSS-Protection`, `Referrer-Policy: strict-origin-when-cross-origin`, HSTS).
+- **High-Concurrency Database Layer:** PostgreSQL connection pooling (`pool_size=20`, `max_overflow=10`, `pool_pre_ping=True`) and SQLite WAL (Write-Ahead Logging) mode with `busy_timeout=15000`.
+- **Field PWA Offline Resilience:** Service Worker (`sw.js`) app shell caching, Web App Manifest, IndexedDB queue, and clock-drift conflict resolution for riverfront ghat verification.
+- **Hardware Sensor Integration:** Real GPS device coordinate acquisition (`navigator.geolocation`) with accuracy radius, plus native mobile camera photo evidence capture (`<input capture="environment" />`).
+- **Resilient UI Error Boundary:** Client-side error boundary preventing blank screens and offering one-click session recovery.
+- **Route-Level Code Splitting:** Asynchronous module loading with `React.lazy()` reducing initial entry bundle to ~330 KB.
 
 ---
 

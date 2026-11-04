@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.core.config import settings
 from app.core.security import verify_password, create_access_token, get_password_hash
+from app.core.rate_limit import enforce_rate_limit
 from app.models.user import User
 from app.schemas.auth import LoginRequest, Token, PasswordResetRequest, PasswordChangeRequest
 from app.schemas.user import UserResponse
@@ -24,6 +25,12 @@ def login(
     Authenticate user with username or email and password.
     Returns access token and user info with assigned roles and permissions.
     """
+    enforce_rate_limit(
+        request, 
+        max_requests=settings.RATE_LIMIT_LOGIN_MAX_ATTEMPTS, 
+        window_seconds=settings.RATE_LIMIT_LOGIN_WINDOW_SECONDS,
+        key_prefix="auth_login"
+    )
     ip_addr = request.client.host if request.client else "unknown"
     
     # Query by username or email
@@ -100,7 +107,7 @@ def login(
         httponly=True,
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         samesite="lax",
-        secure=False  # True in HTTPS production
+        secure=settings.COOKIE_SECURE
     )
 
     serialized_user = serialize_user(user)
@@ -148,6 +155,7 @@ def reset_password(
     Development/Demo password reset workflow.
     Validates account and sets new password with audit logging.
     """
+    enforce_rate_limit(request, max_requests=10, window_seconds=60, key_prefix="auth_reset")
     user = db.query(User).filter(User.email == data.email.lower()).first()
     if not user:
         # Don't leak existence in production, but in demo return clear feedback

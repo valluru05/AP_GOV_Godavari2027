@@ -27,5 +27,5 @@ RUN mkdir -p /app/data/storage
 
 EXPOSE 8008
 
-# Start FastAPI uvicorn server
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8008"]
+# Start production FastAPI server with worker clustering and proxy headers
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8008", "--workers", "4", "--proxy-headers", "--forwarded-allow-ips", "*"]
