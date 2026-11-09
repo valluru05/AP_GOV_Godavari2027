@@ -44,6 +44,7 @@ export const DefectDetailPage: React.FC = () => {
 
   // Modal States
   const [isReworkModalOpen, setIsReworkModalOpen] = useState(false);
+  const [reworkStep, setReworkStep] = useState<1 | 2 | 3 | 4>(1);
   const [isReinspectModalOpen, setIsReinspectModalOpen] = useState(false);
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
 
@@ -570,81 +571,234 @@ export const DefectDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* MODAL 1: VENDOR SUBMIT REWORK MODAL */}
+      {/* MODAL 1: VENDOR SUBMIT REWORK MODAL (4-STEP GUIDED WORKFLOW) */}
       <Modal
         isOpen={isReworkModalOpen}
         onClose={() => setIsReworkModalOpen(false)}
-        title="Submit Contractor Corrective Action & Rework Evidence"
+        title="Defect Correction &amp; Rework Submission"
+        maxWidth="lg"
       >
-        <form onSubmit={handleReworkSubmit} className="space-y-4">
-          <p className="text-xs text-slate-500">
-            Detail specific corrective actions, structural repairs, or component replacements executed to rectify defect {defect.defect_id}.
-          </p>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Corrective Action Statement *
-            </label>
-            <textarea
-              rows={4}
-              value={reworkNotes}
-              onChange={(e) => setReworkNotes(e.target.value)}
-              placeholder="e.g. Ruptured manifold gasket removed; surfaces resurfaced and ANSI Class 150 EPDM gasket installed. Bolts torqued to 140 Nm with torque wrench."
-              className="w-full text-xs border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              required
-            />
+        <div className="space-y-4">
+          {/* Step Indicator */}
+          <div className="flex items-center justify-between pb-3 border-b border-[#E9DED2] text-xs">
+            {[
+              { num: 1, label: 'Defect Issue' },
+              { num: 2, label: 'Fix Required' },
+              { num: 3, label: 'Upload Proof' },
+              { num: 4, label: 'Submit Verification' },
+            ].map((st) => (
+              <div
+                key={st.num}
+                className={`flex items-center gap-1.5 ${
+                  reworkStep === st.num
+                    ? 'text-[#8F2D16] font-bold'
+                    : reworkStep > st.num
+                    ? 'text-[#15803D] font-medium'
+                    : 'text-textMuted'
+                }`}
+              >
+                <span
+                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                    reworkStep === st.num
+                      ? 'bg-[#8F2D16] text-white shadow-sm'
+                      : reworkStep > st.num
+                      ? 'bg-[#15803D] text-white'
+                      : 'bg-[#FAF4EC] text-textSecondary border border-[#E9DED2]'
+                  }`}
+                >
+                  {reworkStep > st.num ? '✓' : st.num}
+                </span>
+                <span className="hidden sm:inline">{st.label}</span>
+              </div>
+            ))}
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold text-slate-700">
-              Attach Photographic Proof of Rework
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Caption (e.g. New vulcanized gasket installed under test)"
-                value={reworkPhotoCaption}
-                onChange={(e) => setReworkPhotoCaption(e.target.value)}
-                className="flex-1 text-xs border border-slate-200 rounded p-2 bg-white"
-              />
-              <Button
-                type="button"
-                size="sm"
-                variant="secondary"
-                onClick={handleAddReworkPhoto}
-                className="text-xs"
-              >
-                Attach
-              </Button>
-            </div>
-            {reworkPhotos.length > 0 && (
-              <div className="text-[11px] text-emerald-700 font-medium">
-                {reworkPhotos.length} photo(s) staged.
+          <form onSubmit={handleReworkSubmit} className="space-y-4">
+            {/* STEP 1: VIEW DEFECT DESCRIPTION */}
+            {reworkStep === 1 && (
+              <div className="space-y-3">
+                <span className="text-xs font-bold text-textPrimary block">
+                  Step 1: View Defect Details &amp; Inspector Citation
+                </span>
+
+                <div className="p-3.5 bg-[#FFFDF9] rounded-xl border border-[#E9DED2] space-y-2 text-xs">
+                  <div className="flex justify-between border-b border-[#E9DED2]/60 pb-1.5">
+                    <span className="text-textSecondary">Defect Reference:</span>
+                    <span className="font-mono font-bold text-[#8F2D16]">{defect.defect_id}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-[#E9DED2]/60 pb-1.5">
+                    <span className="text-textSecondary">Severity:</span>
+                    {getSeverityBadge(defect.severity)}
+                  </div>
+                  <div className="flex justify-between border-b border-[#E9DED2]/60 pb-1.5">
+                    <span className="text-textSecondary">Defect Title:</span>
+                    <strong className="text-textPrimary">{defect.title}</strong>
+                  </div>
+                  <div>
+                    <span className="text-textSecondary block mb-1">Ground Failure Description:</span>
+                    <p className="bg-[#FEF2F2] p-2.5 rounded-lg text-[#991B1B] border border-[#FECACA] leading-relaxed">
+                      {defect.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 pt-3 border-t border-[#E9DED2]">
+                  <Button variant="secondary" type="button" onClick={() => setIsReworkModalOpen(false)}>
+                    Close
+                  </Button>
+                  <Button variant="saffron" type="button" onClick={() => setReworkStep(2)}>
+                    Next: Enter Correction Details &rarr;
+                  </Button>
+                </div>
               </div>
             )}
-          </div>
 
-          <div className="p-3 bg-amber-50 rounded-lg text-xs text-amber-900 border border-amber-200">
-            <strong>Notice:</strong> Submitting this correction moves status to <em>Correction Submitted</em>. A Quality Field Inspector will verify the work on-site before official resolution.
-          </div>
+            {/* STEP 2: REVIEW REQUIRED CORRECTION */}
+            {reworkStep === 2 && (
+              <div className="space-y-3">
+                <span className="text-xs font-bold text-textPrimary block">
+                  Step 2: Detail Technical Actions Taken to Rectify Defect
+                </span>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setIsReworkModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="bg-amber-600 hover:bg-amber-700 text-white"
-              isLoading={submittingRework}
-            >
-              Submit Rework for Re-Inspection
-            </Button>
-          </div>
-        </form>
+                <div>
+                  <label className="block text-xs font-semibold text-textPrimary mb-1">
+                    Corrective Action Statement *
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={reworkNotes}
+                    onChange={(e) => setReworkNotes(e.target.value)}
+                    placeholder="e.g. Removed damaged pipe flange, resurfaced mating faces, and installed new ANSI Class 150 EPDM gasket. Retorqued bolts to 140 Nm with torque wrench and conducted preliminary static pressure check."
+                    className="w-full text-xs border border-[#E9DED2] rounded-xl p-2.5 bg-white focus:ring-1 focus:ring-[#8F2D16]"
+                    required
+                  />
+                  <span className="text-[10px] text-textSecondary mt-0.5 block">
+                    Describe specific component replacements, repairs, or re-testing performed.
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center pt-3 border-t border-[#E9DED2]">
+                  <Button variant="secondary" type="button" onClick={() => setReworkStep(1)}>
+                    &larr; Back
+                  </Button>
+                  <Button
+                    variant="saffron"
+                    type="button"
+                    disabled={reworkNotes.trim().length < 10}
+                    onClick={() => setReworkStep(3)}
+                  >
+                    Next: Upload Evidence &rarr;
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3: UPLOAD CORRECTION EVIDENCE */}
+            {reworkStep === 3 && (
+              <div className="space-y-3">
+                <span className="text-xs font-bold text-textPrimary block">
+                  Step 3: Attach Photographic Evidence of Rework
+                </span>
+
+                <div className="p-3 bg-[#FAF4EC] rounded-xl border border-[#E9DED2] space-y-2">
+                  <span className="text-xs font-semibold text-textPrimary block">Add Rework Photo</span>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Caption (e.g. Replacement gasket installed & dry-fit verified)"
+                      value={reworkPhotoCaption}
+                      onChange={(e) => setReworkPhotoCaption(e.target.value)}
+                      className="flex-1 text-xs border border-[#E9DED2] rounded-lg p-2 bg-white"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="saffron"
+                      onClick={handleAddReworkPhoto}
+                    >
+                      Attach Photo
+                    </Button>
+                  </div>
+                </div>
+
+                {reworkPhotos.length > 0 && (
+                  <div className="space-y-1.5 max-h-40 overflow-y-auto p-2 bg-[#FAF4EC] rounded-xl border border-[#E9DED2]">
+                    <div className="text-[11px] text-[#15803D] font-bold">
+                      {reworkPhotos.length} photo proof item(s) attached:
+                    </div>
+                    {reworkPhotos.map((p, pIdx) => (
+                      <div key={pIdx} className="p-2 bg-white rounded-lg border border-[#E9DED2] flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <Camera className="w-4 h-4 text-[#8F2D16]" />
+                          <div>
+                            <span className="font-semibold text-textPrimary block text-[11px]">{p.caption}</span>
+                            <span className="text-[10px] text-textSecondary">{p.name}</span>
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-textMuted">
+                          {p.timestamp ? new Date(p.timestamp).toLocaleTimeString() : 'Recorded'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center pt-3 border-t border-[#E9DED2]">
+                  <Button variant="secondary" type="button" onClick={() => setReworkStep(2)}>
+                    &larr; Back
+                  </Button>
+                  <Button variant="saffron" type="button" onClick={() => setReworkStep(4)}>
+                    Next: Review &amp; Submit &rarr;
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 4: SUBMIT FOR INDEPENDENT VERIFICATION */}
+            {reworkStep === 4 && (
+              <div className="space-y-3">
+                <span className="text-xs font-bold text-textPrimary block">
+                  Step 4: Confirm Rework Claim &amp; Request Official Re-Inspection
+                </span>
+
+                <div className="p-3 bg-[#FAF4EC] rounded-xl border border-[#E9DED2] space-y-2 text-xs">
+                  <div className="flex justify-between border-b border-[#E9DED2]/60 pb-1.5">
+                    <span className="text-textSecondary">Target Defect:</span>
+                    <strong className="text-textPrimary">{defect.title}</strong>
+                  </div>
+                  <div>
+                    <span className="text-textSecondary block mb-1">Rework Declaration:</span>
+                    <p className="bg-white p-2 rounded-lg text-textPrimary border border-[#E9DED2]/60">
+                      {reworkNotes}
+                    </p>
+                  </div>
+                  <div className="flex justify-between pt-1">
+                    <span className="text-textSecondary">Photographic Evidence:</span>
+                    <span className="text-[#15803D] font-bold">{reworkPhotos.length} file(s) staged</span>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-[#FFFBEB] rounded-xl border border-[#FDE68A] text-xs text-[#B45309] leading-relaxed">
+                  <strong>Independent Verification Notice:</strong> As per Government of Andhra Pradesh quality standards, contractors cannot approve their own corrections. Submitting this claim dispatches a Quality Field Inspector to independently test and close this defect on-site.
+                </div>
+
+                <div className="flex justify-between items-center pt-3 border-t border-[#E9DED2]">
+                  <Button variant="secondary" type="button" onClick={() => setReworkStep(3)}>
+                    &larr; Back
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    isLoading={submittingRework}
+                    icon={<RotateCcw className="w-3.5 h-3.5" />}
+                  >
+                    Submit for Official Re-Inspection
+                  </Button>
+                </div>
+              </div>
+            )}
+          </form>
+        </div>
       </Modal>
 
       {/* MODAL 2: FIELD INSPECTOR RE-INSPECTION MODAL */}

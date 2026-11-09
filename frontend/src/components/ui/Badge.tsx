@@ -1,11 +1,11 @@
 import React from 'react';
 
-export type BadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'brand';
+export type BadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'brand' | 'saffron';
 
 interface BadgeProps {
   children: React.ReactNode;
   variant?: BadgeVariant;
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'md' | 'lg';
   icon?: React.ReactNode;
   className?: string;
 }
@@ -17,20 +17,26 @@ export const Badge: React.FC<BadgeProps> = ({
   icon,
   className = '',
 }) => {
-  const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs font-medium';
+  const sizeClasses =
+    size === 'sm'
+      ? 'px-2 py-0.5 text-[11px] font-medium'
+      : size === 'lg'
+      ? 'px-3 py-1.5 text-xs font-semibold'
+      : 'px-2.5 py-1 text-xs font-medium';
 
   const variantClasses: Record<BadgeVariant, string> = {
-    brand: 'bg-brand-light text-brand border border-brand-subtle',
-    success: 'bg-govSuccess-light text-govSuccess border border-govSuccess-border',
-    warning: 'bg-govWarning-light text-govWarning border border-govWarning-border',
-    error: 'bg-govError-light text-govError border border-govError-border',
-    info: 'bg-govInfo-light text-govInfo border border-govInfo-border',
-    neutral: 'bg-slate-100 text-slate-700 border border-slate-200',
+    brand: 'bg-[#FDF2EB] text-[#8F2D16] border border-[#F7DDD0]',
+    saffron: 'bg-[#FEF3E8] text-[#E87512] border border-[#FCE4CB]',
+    success: 'bg-[#F0FDF4] text-[#15803D] border border-[#BBF7D0]',
+    warning: 'bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]',
+    error: 'bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA]',
+    info: 'bg-[#FFF7ED] text-[#C25E09] border border-[#FED7AA]',
+    neutral: 'bg-[#FAF4ED] text-[#7C7168] border border-[#E9DED2]',
   };
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-md tracking-wide ${sizeClasses} ${variantClasses[variant]} ${className}`}
+      className={`inline-flex items-center gap-1 rounded-md tracking-wide ${sizeClasses} ${variantClasses[variant] || variantClasses.neutral} ${className}`}
     >
       {icon && <span className="shrink-0">{icon}</span>}
       {children}

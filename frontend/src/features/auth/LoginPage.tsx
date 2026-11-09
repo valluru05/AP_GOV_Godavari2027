@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Lock, User, AlertCircle, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Lock, User, AlertCircle, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useAuth, DEMO_ACCOUNTS } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import { api } from '../../services/api';
+import { ApGovernmentSeal, PushkaraluKalash, CivicProofLotusLogo } from '../../components/common/BrandEmblems';
 
 export const LoginPage: React.FC = () => {
   const { login, quickLogin, isAuthenticated } = useAuth();
@@ -74,35 +75,56 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] flex flex-col justify-between font-sans">
+    <div className="min-h-screen bg-[#FFF8EE] flex flex-col justify-between font-sans">
       {/* Top Government Emblem Bar */}
-      <div className="bg-surface border-b border-borderLight px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-brand flex items-center justify-center text-white shadow-sm">
-            <Shield className="w-5 h-5 text-sky-200" />
+      <header className="bg-white border-b border-[#E9DED2] px-4 sm:px-8 py-3 flex items-center justify-between shadow-subtle">
+        <div className="flex items-center gap-3 sm:gap-6">
+          <div className="flex items-center gap-2.5 pr-4 border-r border-[#E9DED2]">
+            <ApGovernmentSeal className="w-9 h-9 shrink-0 drop-shadow-sm" />
+            <div className="hidden sm:flex flex-col">
+              <span className="text-[12px] font-bold text-[#166534] tracking-tight leading-none">
+                Government of
+              </span>
+              <span className="text-[12px] font-bold text-[#166534] tracking-tight leading-tight">
+                Andhra Pradesh
+              </span>
+            </div>
           </div>
-          <div>
-            <span className="text-base font-bold text-brand tracking-tight">CivicProof</span>
-            <span className="text-xs text-textSecondary ml-2 hidden sm:inline">
-              Government Infrastructure Readiness & Asset Accountability
-            </span>
+
+          <div className="flex items-center gap-2.5">
+            <PushkaraluKalash className="w-9 h-9 shrink-0 drop-shadow-sm" />
+            <div className="flex flex-col">
+              <span className="text-sm sm:text-base font-extrabold text-[#8F2D16] tracking-tight font-serif leading-none">
+                Godavari Pushkaralu 2027
+              </span>
+              <span className="text-[11px] text-textSecondary font-medium mt-0.5 tracking-tight hidden sm:inline">
+                Infrastructure Readiness Command Center
+              </span>
+            </div>
           </div>
         </div>
+
         <div className="flex items-center gap-2">
-          <span className="text-xs px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-md font-semibold">
-            Godavari Pushkaralu 2027 Prototype
+          <span className="text-xs px-2.5 py-1 bg-[#FEF3E8] text-[#8F2D16] border border-[#FCE4CB] rounded-full font-bold">
+            Official Government Portal
           </span>
         </div>
-      </div>
+      </header>
 
       {/* Main Login Split View */}
       <div className="flex-1 max-w-6xl w-full mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start my-auto">
         {/* Left Column: Standard Secure Login */}
-        <div className="lg:col-span-5 bg-surface p-8 rounded-xl border border-borderLight shadow-card">
+        <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-2xl border border-[#E9DED2] shadow-card">
           <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <CivicProofLotusLogo className="w-6 h-6" />
+              <span className="text-xs font-bold uppercase tracking-wider text-[#8F2D16]">
+                CivicProof Platform
+              </span>
+            </div>
             <h1 className="text-2xl font-bold text-textPrimary tracking-tight">Official Sign In</h1>
-            <p className="text-sm text-textSecondary mt-1">
-              Authorized municipal administrators, field inspectors, and registered contractors.
+            <p className="text-xs text-textSecondary mt-1 leading-relaxed">
+              Authorized municipal administrators, field inspectors, project engineers, and verified vendors.
             </p>
           </div>
 
@@ -175,18 +197,18 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Right Column: 1-Click Demo Account Quick Selector for Evaluators */}
-        <div className="lg:col-span-7 bg-surface p-6 md:p-8 rounded-xl border border-borderLight shadow-card">
+        <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-2xl border border-[#E9DED2] shadow-card">
           <div className="flex items-center justify-between mb-4">
             <div>
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-teal-600" />
-                <h2 className="text-base font-bold text-textPrimary">Evaluator 1-Click Role Switcher</h2>
+                <Sparkles className="w-4 h-4 text-[#E87512]" />
+                <h2 className="text-base font-bold text-textPrimary">Evaluator 1-Click Official Persona</h2>
               </div>
               <p className="text-xs text-textSecondary mt-0.5">
-                Click any persona below to authenticate instantly with seeded demo credentials.
+                Click any official profile to authenticate instantly and test role-based dashboards.
               </p>
             </div>
-            <span className="text-[11px] font-semibold uppercase tracking-wider bg-sky-50 text-sky-700 px-2.5 py-1 rounded border border-sky-200">
+            <span className="text-[11px] font-bold bg-[#FEF3E8] text-[#8F2D16] px-2.5 py-1 rounded-full border border-[#FCE4CB]">
               7 Roles Available
             </span>
           </div>
@@ -196,24 +218,24 @@ export const LoginPage: React.FC = () => {
               <div
                 key={account.email}
                 onClick={() => handleQuickRole(account.email)}
-                className="p-3.5 rounded-lg border border-borderLight bg-slate-50/50 hover:bg-brand-light/30 hover:border-brand/40 transition-all cursor-pointer group flex flex-col justify-between text-left"
+                className="p-3.5 rounded-xl border border-[#E9DED2] bg-[#FFFDF9] hover:bg-[#FDF2EB] hover:border-[#8F2D16] transition-all cursor-pointer group flex flex-col justify-between text-left shadow-xs"
               >
                 <div>
                   <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="text-xs font-bold text-brand group-hover:text-brand-hover">
+                    <span className="text-xs font-bold text-[#8F2D16]">
                       {account.roleName}
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono">1-click</span>
+                    <span className="text-[10px] text-[#E87512] font-semibold">1-click</span>
                   </div>
                   <p className="text-xs font-semibold text-textPrimary truncate">{account.name}</p>
                   <p className="text-[11px] text-textSecondary mt-1 leading-snug line-clamp-2">
                     {account.description}
                   </p>
                 </div>
-                <div className="mt-3 pt-2 border-t border-borderLight/60 flex items-center justify-between text-[11px]">
-                  <span className="text-slate-500 truncate">{account.department}</span>
-                  <span className="text-brand font-medium group-hover:translate-x-0.5 transition-transform flex items-center">
-                    Enter &rarr;
+                <div className="mt-3 pt-2 border-t border-[#E9DED2]/60 flex items-center justify-between text-[11px]">
+                  <span className="text-textMuted truncate font-mono text-[10px]">{account.department}</span>
+                  <span className="text-[#8F2D16] font-bold group-hover:translate-x-0.5 transition-transform flex items-center text-xs">
+                    Login &rarr;
                   </span>
                 </div>
               </div>
@@ -223,10 +245,12 @@ export const LoginPage: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <footer className="py-4 border-t border-borderLight bg-surface text-center text-xs text-textSecondary">
-        <p>CivicProof Platform — Godavari Pushkaralu 2027 Field Verification Architecture</p>
-        <p className="text-[11px] text-slate-400 mt-0.5">
-          Prototype demonstration mode. Seeded data is purely synthetic.
+      <footer className="py-4 border-t border-[#E9DED2] bg-white text-center text-xs text-textSecondary">
+        <p className="font-semibold text-textPrimary">
+          CivicProof Platform &bull; Godavari Pushkaralu 2027 Infrastructure Readiness Cell
+        </p>
+        <p className="text-[11px] text-textSecondary mt-0.5">
+          Government of Andhra Pradesh &bull; Rajamahendravaram Municipal Corporation
         </p>
       </footer>
 

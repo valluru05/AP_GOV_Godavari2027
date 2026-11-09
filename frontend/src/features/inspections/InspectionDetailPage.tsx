@@ -12,7 +12,8 @@ import {
   Clock,
   UserCheck,
   FileCheck2,
-  FileText
+  FileText,
+  AlertOctagon,
 } from 'lucide-react';
 import { api } from '../../services/api';
 import type {
@@ -37,8 +38,9 @@ export const InspectionDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Execute Inspection Modal State
+  // Execute Inspection Modal State (6-Step Mobile-First Inspection Wizard)
   const [isExecuteModalOpen, setIsExecuteModalOpen] = useState(false);
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
   const [executing, setExecuting] = useState(false);
   const [execVerdict, setExecVerdict] = useState<InspectionOutcome>('Passed');
   const [execChecklist, setExecChecklist] = useState<ChecklistItemResult[]>([]);
@@ -615,321 +617,502 @@ export const InspectionDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* MODAL 1: EXECUTE INSPECTION MODAL (FIELD INSPECTOR MOBILE WORKFLOW) */}
+      {/* MODAL 1: EXECUTE INSPECTION MODAL (6-STEP GUIDED MOBILE-FIRST WIZARD) */}
       <Modal
         isOpen={isExecuteModalOpen}
         onClose={() => setIsExecuteModalOpen(false)}
-        title="Field Inspector Mobile Verification Terminal"
+        title="Field Inspection Verification Wizard"
+        maxWidth="lg"
       >
-        <form onSubmit={handleExecuteSubmit} className="space-y-4 max-h-[80vh] overflow-y-auto pr-1">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-900">
-            <p className="font-semibold">Authoritative Physical Certification</p>
-            <p className="text-blue-700 mt-0.5">
-              Executing this checklist records binding physical progress and updates project milestone acceptance status.
-            </p>
-          </div>
-
-          {/* Outcome Radio Selector */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Authoritative Verdict *
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setExecVerdict('Passed');
-                  setExecVerifiedProgress(100);
-                }}
-                className={`p-2.5 rounded-lg border text-xs font-bold flex flex-col items-center gap-1 transition-all ${
-                  execVerdict === 'Passed'
-                    ? 'bg-emerald-50 border-emerald-500 text-emerald-700 ring-2 ring-emerald-400'
-                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                Passed & Ready
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setExecVerdict('Failed');
-                  setExecVerifiedProgress(0);
-                }}
-                className={`p-2.5 rounded-lg border text-xs font-bold flex flex-col items-center gap-1 transition-all ${
-                  execVerdict === 'Failed'
-                    ? 'bg-rose-50 border-rose-500 text-rose-700 ring-2 ring-rose-400'
-                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                <XCircle className="w-4 h-4 text-rose-600" />
-                Failed (Defect)
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setExecVerdict('Conditional Pass');
-                  setExecVerifiedProgress(75);
-                }}
-                className={`p-2.5 rounded-lg border text-xs font-bold flex flex-col items-center gap-1 transition-all ${
-                  execVerdict === 'Conditional Pass'
-                    ? 'bg-amber-50 border-amber-500 text-amber-700 ring-2 ring-amber-400'
-                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                <AlertTriangle className="w-4 h-4 text-amber-600" />
-                Conditional Pass
-              </button>
-            </div>
-          </div>
-
-          {/* Verified Progress Awarded */}
-          {execVerdict === 'Passed' && (
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Verified Physical Progress to Award (%):
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="range"
-                  min="10"
-                  max="100"
-                  step="5"
-                  value={execVerifiedProgress}
-                  onChange={(e) => setExecVerifiedProgress(Number(e.target.value))}
-                  className="flex-1"
-                />
-                <span className="font-mono font-bold text-sm text-emerald-700 bg-emerald-50 px-3 py-1 rounded border border-emerald-200">
-                  {execVerifiedProgress}%
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Checklist Items Execution */}
-          <div className="space-y-3">
-            <label className="block text-xs font-semibold text-slate-700 border-b border-slate-100 pb-1">
-              Checklist Criteria Verification ({execChecklist.length} Items)
-            </label>
-
-            {execChecklist.map((item, idx) => (
-              <div key={idx} className="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">
-                    {idx + 1}. {item.item}
+        <div className="space-y-4">
+          {/* Step Progress Header */}
+          <div className="flex items-center justify-between pb-3 border-b border-[#E9DED2] text-xs">
+            <div className="flex items-center gap-1.5 overflow-x-auto py-1">
+              {[
+                { num: 1, label: 'Details' },
+                { num: 2, label: 'Checklist' },
+                { num: 3, label: 'Photos & GPS' },
+                { num: 4, label: 'Verdict' },
+                { num: 5, label: 'Defect Review' },
+                { num: 6, label: 'Certify & Submit' },
+              ].map((st) => (
+                <div
+                  key={st.num}
+                  className={`flex items-center gap-1 shrink-0 ${
+                    wizardStep === st.num
+                      ? 'text-[#8F2D16] font-bold'
+                      : wizardStep > st.num
+                      ? 'text-[#15803D] font-medium'
+                      : 'text-textMuted'
+                  }`}
+                >
+                  <span
+                    className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                      wizardStep === st.num
+                        ? 'bg-[#8F2D16] text-white'
+                        : wizardStep > st.num
+                        ? 'bg-[#15803D] text-white'
+                        : 'bg-[#FAF4EC] text-textSecondary border border-[#E9DED2]'
+                    }`}
+                  >
+                    {wizardStep > st.num ? '✓' : st.num}
                   </span>
-                  <div className="flex items-center gap-1">
-                    {(['Pass', 'Fail', 'Pending'] as const).map((v) => (
-                      <button
-                        key={v}
-                        type="button"
-                        onClick={() => {
-                          const copy = [...execChecklist];
-                          copy[idx].verdict = v;
-                          setExecChecklist(copy);
-                        }}
-                        className={`text-[11px] px-2 py-0.5 rounded font-medium border transition-colors ${
-                          item.verdict === v
-                            ? v === 'Pass'
-                              ? 'bg-emerald-600 text-white border-emerald-700'
-                              : v === 'Fail'
-                              ? 'bg-rose-600 text-white border-rose-700'
-                              : 'bg-amber-600 text-white border-amber-700'
-                            : 'bg-white text-slate-600 border-slate-200'
-                        }`}
-                      >
-                        {v}
-                      </button>
-                    ))}
+                  <span className="hidden sm:inline text-[11px]">{st.label}</span>
+                </div>
+              ))}
+            </div>
+            <Badge variant="saffron" size="sm">
+              Step {wizardStep} of 6
+            </Badge>
+          </div>
+
+          <form onSubmit={handleExecuteSubmit} className="space-y-4">
+            {/* STEP 1: REVIEW PROJECT AND WORK DETAILS */}
+            {wizardStep === 1 && (
+              <div className="space-y-3">
+                <span className="text-xs font-bold text-textPrimary block">
+                  Step 1: Review Worksite Information &amp; Schedule
+                </span>
+
+                <div className="p-4 bg-[#FFFDF9] rounded-xl border border-[#E9DED2] space-y-2.5 text-xs">
+                  <div className="flex justify-between border-b border-[#E9DED2]/60 pb-2">
+                    <span className="text-textSecondary">Inspection Ref:</span>
+                    <span className="font-mono font-bold text-[#8F2D16]">{inspection.inspection_id}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-[#E9DED2]/60 pb-2">
+                    <span className="text-textSecondary">Work Package:</span>
+                    <strong className="text-textPrimary text-right">{inspection.work_package_title}</strong>
+                  </div>
+                  <div className="flex justify-between border-b border-[#E9DED2]/60 pb-2">
+                    <span className="text-textSecondary">Project:</span>
+                    <span className="text-textPrimary">{inspection.project_name}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-[#E9DED2]/60 pb-2">
+                    <span className="text-textSecondary">Bathing Ghat / Sector:</span>
+                    <span className="text-textPrimary font-semibold">{inspection.zone_name || 'Rajamahendravaram Main Ghat'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-textSecondary">Inspection Standard:</span>
+                    <span className="text-[#15803D] font-bold">{inspection.checklist_version}</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    placeholder="Measurement (e.g. 6.0 bar, 68 lux, 1:12)"
-                    value={item.measurement || ''}
-                    onChange={(e) => {
-                      const copy = [...execChecklist];
-                      copy[idx].measurement = e.target.value;
-                      setExecChecklist(copy);
-                    }}
-                    className="text-xs border border-slate-200 rounded p-1.5 bg-white focus:ring-1 focus:ring-blue-500"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Inspector notes / observations"
-                    value={item.notes || ''}
-                    onChange={(e) => {
-                      const copy = [...execChecklist];
-                      copy[idx].notes = e.target.value;
-                      setExecChecklist(copy);
-                    }}
-                    className="text-xs border border-slate-200 rounded p-1.5 bg-white focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* GPS Telemetry Pinpoint */}
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1 text-xs font-semibold text-slate-800">
-                <MapPin className="w-3.5 h-3.5 text-blue-600" />
-                <span>Mobile Geolocation Pinpoint</span>
-              </div>
-              <Button
-                type="button"
-                size="sm"
-                variant="secondary"
-                onClick={handleSimulateGPS}
-                className="text-[11px] py-1 h-7"
-              >
-                {gpsSimulated ? 'GPS Captured ✓' : 'Capture Mobile GPS Sensor'}
-              </Button>
-            </div>
-            <div className="flex items-center gap-3 text-xs font-mono text-slate-600">
-              <span>Lat: {execLat.toFixed(4)}</span>
-              <span>•</span>
-              <span>Lng: {execLng.toFixed(4)}</span>
-              <span>•</span>
-              <span className="text-emerald-700 font-bold">Accuracy: ±{execAccuracy}m</span>
-            </div>
-          </div>
-
-          {/* Overall Inspector Notes */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Overall Inspection Notes & Directives
-            </label>
-            <textarea
-              rows={2}
-              value={execNotes}
-              onChange={(e) => setExecNotes(e.target.value)}
-              placeholder="e.g. All high-mast towers energized; illumination verified at 68 lux exceeding safety requirements."
-              className="w-full text-xs border border-slate-200 rounded p-2 bg-white focus:ring-1 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Photographic Evidence Attachment */}
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold text-slate-700">
-              Attach Geotagged Site Evidence
-            </label>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="text"
-                placeholder="Photo caption (e.g. Manifold pressure gauge reading 6.0 bar)"
-                value={photoCaption}
-                onChange={(e) => setPhotoCaption(e.target.value)}
-                className="flex-1 text-xs border border-slate-200 rounded p-2 bg-white"
-              />
-              <div className="flex gap-2">
-                <label className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 rounded text-xs font-medium cursor-pointer transition-colors shrink-0">
-                  <Camera className="w-3.5 h-3.5" />
-                  <span>Snap / Upload</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    onChange={handlePhotoUpload}
-                    className="hidden"
-                  />
-                </label>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  onClick={handleAddPhoto}
-                  className="text-xs"
-                >
-                  Add Note Tag
-                </Button>
-              </div>
-            </div>
-
-            {/* Staged photos preview */}
-            {execPhotos.length > 0 && (
-              <div className="mt-2 space-y-1.5 max-h-36 overflow-y-auto p-2 bg-slate-50 border border-slate-200 rounded">
-                <div className="text-[11px] text-emerald-700 font-medium">
-                  {execPhotos.length} photo evidence record(s) staged:
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {execPhotos.map((photo, pIdx) => (
-                    <div key={pIdx} className="flex items-center justify-between p-1.5 bg-white border border-slate-200 rounded text-xs">
-                      <div className="flex items-center gap-2 overflow-hidden">
-                        {photo.url ? (
-                          <img src={photo.url} alt="Staged" className="w-8 h-8 object-cover rounded shrink-0 border border-slate-200" />
-                        ) : (
-                          <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
-                            <Camera className="w-4 h-4" />
-                          </div>
-                        )}
-                        <div className="truncate">
-                          <p className="font-semibold text-slate-700 text-[11px] truncate">{photo.caption || photo.name}</p>
-                          <p className="text-[10px] text-slate-400">{photo.name}</p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemovePhoto(pIdx)}
-                        className="text-slate-400 hover:text-rose-600 text-xs px-1 font-bold ml-1"
-                        title="Remove photo"
-                      >
-                        &times;
-                      </button>
-                    </div>
-                  ))}
+                <div className="flex justify-end gap-2 pt-3 border-t border-[#E9DED2]">
+                  <Button variant="secondary" type="button" onClick={() => setIsExecuteModalOpen(false)}>
+                    Close
+                  </Button>
+                  <Button variant="saffron" type="button" onClick={() => setWizardStep(2)}>
+                    Next: Checklist Items &rarr;
+                  </Button>
                 </div>
               </div>
             )}
-          </div>
 
-          {/* Digital Signature Affirmation */}
-          <div className="pt-2 border-t border-slate-200 space-y-2">
-            <label className="flex items-start gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={signatureAgreed}
-                onChange={(e) => setSignatureAgreed(e.target.checked)}
-                className="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
-                required
-              />
-              <span className="text-xs text-slate-600 leading-tight">
-                <strong>Official Attestation:</strong> I declare that I am physically present on-site at Godavari Pushkaralu Sector and have verified all measurements accurately.
-              </span>
-            </label>
+            {/* STEP 2: COMPLETE CHECKLIST ITEMS */}
+            {wizardStep === 2 && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-textPrimary">
+                    Step 2: Verify Technical Checklist Criteria ({execChecklist.length} Items)
+                  </span>
+                  <span className="text-[11px] text-textSecondary">Large touch-friendly buttons</span>
+                </div>
 
-            <input
-              type="text"
-              value={execSignature}
-              onChange={(e) => setExecSignature(e.target.value)}
-              placeholder="Inspector Signature"
-              className="w-full text-xs font-mono border border-slate-200 rounded p-2 bg-slate-50"
-              required
-            />
-          </div>
+                <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+                  {execChecklist.map((item, idx) => (
+                    <div key={idx} className="p-3 bg-[#FFFDF9] rounded-xl border border-[#E9DED2] space-y-2">
+                      <span className="text-xs font-bold text-textPrimary block">
+                        {idx + 1}. {item.item}
+                      </span>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setIsExecuteModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="bg-[#174EA6] hover:bg-[#123e85] text-white"
-              isLoading={executing}
-            >
-              Submit Authoritative Verdict
-            </Button>
-          </div>
-        </form>
+                      {/* Large Touch Target Buttons for Field Inspectors */}
+                      <div className="grid grid-cols-3 gap-2">
+                        {(['Pass', 'Fail', 'Pending'] as const).map((v) => (
+                          <button
+                            key={v}
+                            type="button"
+                            onClick={() => {
+                              const copy = [...execChecklist];
+                              copy[idx].verdict = v;
+                              setExecChecklist(copy);
+                            }}
+                            className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1 ${
+                              item.verdict === v
+                                ? v === 'Pass'
+                                  ? 'bg-[#15803D] text-white border-[#15803D] shadow-sm'
+                                  : v === 'Fail'
+                                  ? 'bg-[#B91C1C] text-white border-[#B91C1C] shadow-sm'
+                                  : 'bg-[#B45309] text-white border-[#B45309] shadow-sm'
+                                : 'bg-white text-textSecondary border-[#E9DED2] hover:bg-[#FAF4EC]'
+                            }`}
+                          >
+                            {v === 'Pass' ? '✓ Pass' : v === 'Fail' ? '✗ Fail' : '○ Pending'}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                        <input
+                          type="text"
+                          placeholder="Measured Value (e.g. 6.0 bar, 68 lux)"
+                          value={item.measurement || ''}
+                          onChange={(e) => {
+                            const copy = [...execChecklist];
+                            copy[idx].measurement = e.target.value;
+                            setExecChecklist(copy);
+                          }}
+                          className="text-xs border border-[#E9DED2] rounded-lg p-2 bg-white"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Specific observation or remark"
+                          value={item.notes || ''}
+                          onChange={(e) => {
+                            const copy = [...execChecklist];
+                            copy[idx].notes = e.target.value;
+                            setExecChecklist(copy);
+                          }}
+                          className="text-xs border border-[#E9DED2] rounded-lg p-2 bg-white"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-between items-center pt-3 border-t border-[#E9DED2]">
+                  <Button variant="secondary" type="button" onClick={() => setWizardStep(1)}>
+                    &larr; Back
+                  </Button>
+                  <Button variant="saffron" type="button" onClick={() => setWizardStep(3)}>
+                    Next: Photos &amp; GPS &rarr;
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3: UPLOAD PHOTOGRAPHS AND GPS TELEMETRY */}
+            {wizardStep === 3 && (
+              <div className="space-y-3">
+                <span className="text-xs font-bold text-textPrimary block">
+                  Step 3: Capture Geotagged Site Photographs &amp; Device GPS
+                </span>
+
+                {/* GPS Telemetry Bar */}
+                <div className="bg-[#FAF4EC] p-3 rounded-xl border border-[#E9DED2] flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-[#8F2D16]" />
+                    <div className="text-xs">
+                      <span className="font-bold text-textPrimary block">Coordinates: {execLat.toFixed(4)}, {execLng.toFixed(4)}</span>
+                      <span className="text-[10px] text-[#15803D] font-semibold">Sensor Accuracy: &plusmn;{execAccuracy}m (Rajamahendravaram Grid)</span>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={handleSimulateGPS}
+                  >
+                    {gpsSimulated ? 'GPS Locked ✓' : 'Refresh GPS'}
+                  </Button>
+                </div>
+
+                {/* Photo Capture & Upload Box */}
+                <div className="p-3 bg-[#FFFDF9] rounded-xl border border-[#E9DED2] space-y-2">
+                  <span className="text-xs font-semibold text-textPrimary block">Attach Field Verification Photo</span>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="text"
+                      placeholder="Photo caption (e.g. Pump pressure gauge reading)"
+                      value={photoCaption}
+                      onChange={(e) => setPhotoCaption(e.target.value)}
+                      className="flex-1 text-xs border border-[#E9DED2] rounded-lg p-2 bg-white"
+                    />
+                    <div className="flex gap-2">
+                      <label className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-[#FEF3E8] text-[#8F2D16] border border-[#FCE4CB] hover:bg-[#FCE4CB] rounded-lg text-xs font-semibold cursor-pointer transition-colors shrink-0">
+                        <Camera className="w-4 h-4" />
+                        <span>Snap / Browse</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          onChange={handlePhotoUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        onClick={handleAddPhoto}
+                      >
+                        Add Tag
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Staged photos preview */}
+                {execPhotos.length > 0 && (
+                  <div className="space-y-1.5 max-h-36 overflow-y-auto p-2 bg-[#FAF4EC] border border-[#E9DED2] rounded-xl">
+                    <div className="text-[11px] text-[#15803D] font-bold">
+                      {execPhotos.length} site evidence photo(s) captured:
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {execPhotos.map((photo, pIdx) => (
+                        <div key={pIdx} className="flex items-center justify-between p-2 bg-white border border-[#E9DED2] rounded-lg text-xs">
+                          <div className="flex items-center gap-2 overflow-hidden">
+                            {photo.url ? (
+                              <img src={photo.url} alt="Staged" className="w-8 h-8 object-cover rounded shrink-0 border" />
+                            ) : (
+                              <div className="w-8 h-8 rounded bg-[#FAF4EC] flex items-center justify-center text-[#8F2D16] shrink-0">
+                                <Camera className="w-4 h-4" />
+                              </div>
+                            )}
+                            <div className="truncate">
+                              <p className="font-semibold text-textPrimary text-[11px] truncate">{photo.caption || photo.name}</p>
+                              <p className="text-[10px] text-textSecondary">{photo.name}</p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePhoto(pIdx)}
+                            className="text-textMuted hover:text-[#B91C1C] px-1 font-bold"
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center pt-3 border-t border-[#E9DED2]">
+                  <Button variant="secondary" type="button" onClick={() => setWizardStep(2)}>
+                    &larr; Back
+                  </Button>
+                  <Button variant="saffron" type="button" onClick={() => setWizardStep(4)}>
+                    Next: Overall Verdict &rarr;
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 4: OVERALL VERDICT & NOTES */}
+            {wizardStep === 4 && (
+              <div className="space-y-3">
+                <span className="text-xs font-bold text-textPrimary block">
+                  Step 4: Declare Authoritative Field Verdict
+                </span>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setExecVerdict('Passed');
+                      setExecVerifiedProgress(100);
+                    }}
+                    className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all ${
+                      execVerdict === 'Passed'
+                        ? 'bg-[#F0FDF4] border-[#15803D] text-[#15803D] ring-2 ring-[#15803D]/20 shadow-sm'
+                        : 'bg-white border-[#E9DED2] text-textSecondary hover:bg-[#FAF4EC]'
+                    }`}
+                  >
+                    <CheckCircle2 className="w-5 h-5 text-[#15803D]" />
+                    <span>Passed &amp; Ready</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setExecVerdict('Failed');
+                      setExecVerifiedProgress(0);
+                    }}
+                    className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all ${
+                      execVerdict === 'Failed'
+                        ? 'bg-[#FEF2F2] border-[#B91C1C] text-[#B91C1C] ring-2 ring-[#B91C1C]/20 shadow-sm'
+                        : 'bg-white border-[#E9DED2] text-textSecondary hover:bg-[#FAF4EC]'
+                    }`}
+                  >
+                    <XCircle className="w-5 h-5 text-[#B91C1C]" />
+                    <span>Failed (Rework)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setExecVerdict('Conditional Pass');
+                      setExecVerifiedProgress(75);
+                    }}
+                    className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all ${
+                      execVerdict === 'Conditional Pass'
+                        ? 'bg-[#FFFBEB] border-[#B45309] text-[#B45309] ring-2 ring-[#B45309]/20 shadow-sm'
+                        : 'bg-white border-[#E9DED2] text-textSecondary hover:bg-[#FAF4EC]'
+                    }`}
+                  >
+                    <AlertTriangle className="w-5 h-5 text-[#B45309]" />
+                    <span>Conditional Pass</span>
+                  </button>
+                </div>
+
+                {execVerdict === 'Passed' && (
+                  <div className="p-3 bg-[#FFFDF9] rounded-xl border border-[#E9DED2]">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-semibold text-textPrimary">
+                        Verified Physical Progress Awarded:
+                      </label>
+                      <span className="font-mono font-bold text-sm text-[#15803D] bg-[#F0FDF4] px-2.5 py-0.5 rounded border border-[#BBF7D0]">
+                        {execVerifiedProgress}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="10"
+                      max="100"
+                      step="5"
+                      value={execVerifiedProgress}
+                      onChange={(e) => setExecVerifiedProgress(Number(e.target.value))}
+                      className="w-full accent-[#15803D] h-2 bg-[#E9DED2] rounded-lg cursor-pointer"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs font-semibold text-textPrimary mb-1">
+                    Inspector Directives &amp; Field Notes *
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={execNotes}
+                    onChange={(e) => setExecNotes(e.target.value)}
+                    placeholder="Document specific engineering observations, equipment serials checked, and recommendations..."
+                    className="w-full text-xs border border-[#E9DED2] rounded-xl p-2.5 bg-white focus:ring-1 focus:ring-[#8F2D16]"
+                  />
+                </div>
+
+                <div className="flex justify-between items-center pt-3 border-t border-[#E9DED2]">
+                  <Button variant="secondary" type="button" onClick={() => setWizardStep(3)}>
+                    &larr; Back
+                  </Button>
+                  <Button variant="saffron" type="button" onClick={() => setWizardStep(5)}>
+                    Next: Review Failed Items &rarr;
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 5: REVIEW FAILED ITEMS */}
+            {wizardStep === 5 && (
+              <div className="space-y-3">
+                <span className="text-xs font-bold text-textPrimary block">
+                  Step 5: Review Non-Compliant Items &amp; Defect Logging
+                </span>
+
+                {execChecklist.filter((i) => i.verdict === 'Fail').length > 0 ? (
+                  <div className="p-3 bg-[#FEF2F2] border border-[#FECACA] rounded-xl space-y-2">
+                    <div className="flex items-center gap-2 text-xs font-bold text-[#B91C1C]">
+                      <AlertOctagon className="w-4 h-4" />
+                      <span>{execChecklist.filter((i) => i.verdict === 'Fail').length} Item(s) Marked as Failed</span>
+                    </div>
+                    <p className="text-[11px] text-[#991B1B]">
+                      Submitting these failures will automatically log an official Defect Ticket in Module 6 and notify the contractor for immediate rework.
+                    </p>
+                    <div className="divide-y divide-[#FECACA] text-xs pt-1">
+                      {execChecklist
+                        .filter((i) => i.verdict === 'Fail')
+                        .map((f, fi) => (
+                          <div key={fi} className="py-1 text-textPrimary">
+                            &bull; <strong>{f.item}</strong>: {f.notes || 'Defect noted by inspector'}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-[#F0FDF4] border border-[#BBF7D0] rounded-xl text-xs text-[#15803D] flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 shrink-0" />
+                    <div>
+                      <p className="font-bold">No Critical Defects Detected</p>
+                      <p className="text-[11px] text-[#166534]">All checked physical criteria have passed inspection.</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center pt-3 border-t border-[#E9DED2]">
+                  <Button variant="secondary" type="button" onClick={() => setWizardStep(4)}>
+                    &larr; Back
+                  </Button>
+                  <Button variant="saffron" type="button" onClick={() => setWizardStep(6)}>
+                    Next: Certify &amp; Submit &rarr;
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 6: DIGITAL SIGNATURE & SUBMIT */}
+            {wizardStep === 6 && (
+              <div className="space-y-3">
+                <span className="text-xs font-bold text-textPrimary block">
+                  Step 6: Digital Certification &amp; Official Submission
+                </span>
+
+                <div className="p-3 bg-[#FAF4EC] rounded-xl border border-[#E9DED2] text-xs space-y-1.5">
+                  <div className="flex justify-between">
+                    <span className="text-textSecondary">Inspector Identity:</span>
+                    <strong className="text-textPrimary">{user?.full_name} ({user?.username})</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-textSecondary">Recorded Verdict:</span>
+                    <Badge variant={execVerdict === 'Passed' ? 'success' : 'error'} size="sm">
+                      {execVerdict}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-textSecondary">Sync Mode:</span>
+                    <span className="text-[#15803D] font-bold">Online &bull; Immediate Audit Log</span>
+                  </div>
+                </div>
+
+                <div className="pt-1 space-y-2">
+                  <label className="flex items-start gap-2 cursor-pointer p-2.5 bg-white rounded-xl border border-[#E9DED2]">
+                    <input
+                      type="checkbox"
+                      checked={signatureAgreed}
+                      onChange={(e) => setSignatureAgreed(e.target.checked)}
+                      className="mt-0.5 rounded text-[#8F2D16] focus:ring-[#8F2D16] h-4 w-4"
+                      required
+                    />
+                    <span className="text-xs text-textPrimary leading-tight">
+                      <strong>Official Attestation:</strong> I declare under penalty of administrative scrutiny that I am physically present on-site at Godavari Pushkaralu Ghats and have verified all measurements accurately.
+                    </span>
+                  </label>
+
+                  <input
+                    type="text"
+                    value={execSignature}
+                    onChange={(e) => setExecSignature(e.target.value)}
+                    placeholder="Inspector Signature"
+                    className="w-full text-xs font-mono border border-[#E9DED2] rounded-xl p-2.5 bg-[#FAF4EC]"
+                    required
+                  />
+                </div>
+
+                <div className="flex justify-between items-center pt-3 border-t border-[#E9DED2]">
+                  <Button variant="secondary" type="button" onClick={() => setWizardStep(5)}>
+                    &larr; Back
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    isLoading={executing}
+                    disabled={!signatureAgreed}
+                    icon={<ClipboardCheck className="w-4 h-4" />}
+                  >
+                    Submit Verified Inspection
+                  </Button>
+                </div>
+              </div>
+            )}
+          </form>
+        </div>
       </Modal>
 
       {/* MODAL 2: SUPERVISORY REVIEW MODAL */}

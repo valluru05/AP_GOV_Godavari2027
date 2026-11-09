@@ -1,7 +1,8 @@
 import React from 'react';
-import { Printer, ShieldCheck, AlertTriangle, Building2, MapPin } from 'lucide-react';
+import { Printer, ShieldCheck, AlertTriangle, MapPin } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
 import { Button } from '../../components/ui/Button';
+import { ApGovernmentSeal } from '../../components/common/BrandEmblems';
 import type { AssetQRLabel } from '../../types/asset';
 
 interface QRLabelModalProps {
@@ -185,7 +186,7 @@ export const QRLabelModal: React.FC<QRLabelModalProps> = ({ isOpen, onClose, lab
             {/* Tag Header */}
             <div className="text-center border-b border-slate-200 pb-2 mb-3">
               <div className="flex items-center justify-center gap-1.5 text-brand-800 text-[11px] font-extrabold uppercase tracking-wide">
-                <Building2 className="w-3.5 h-3.5" />
+                <ApGovernmentSeal className="w-4 h-4 shrink-0" />
                 Government of Andhra Pradesh
               </div>
               <div className="text-[9px] font-bold text-slate-600 tracking-tight">

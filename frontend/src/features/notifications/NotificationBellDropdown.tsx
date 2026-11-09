@@ -113,17 +113,17 @@ export const NotificationBellDropdown: React.FC = () => {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Bell Trigger Button */}
+      {/* Bell Trigger Button (Styled for White Header with Saffron/Red accents) */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400"
+        className="relative p-2 rounded-full text-textSecondary hover:text-textPrimary hover:bg-[#FAF4EC] transition-colors focus:outline-none focus:ring-2 focus:ring-[#8F2D16]/20"
         title="Notifications"
         aria-label="Notifications"
       >
-        <Bell className="w-5 h-5" />
+        <Bell className="w-5 h-5 text-[#8F2D16]" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-rose-600 rounded-full border-2 border-[#0F172A] shadow-sm animate-pulse">
+          <span className="absolute top-1 right-1 flex items-center justify-center min-w-[17px] h-[17px] px-1 text-[10px] font-bold text-white bg-[#B91C1C] rounded-full border-2 border-white shadow-sm">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -131,13 +131,13 @@ export const NotificationBellDropdown: React.FC = () => {
 
       {/* Dropdown Popover */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 overflow-hidden animate-fadeIn">
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-[#E9DED2] rounded-2xl shadow-dropdown z-50 overflow-hidden">
           {/* Header */}
-          <div className="bg-slate-900 text-white px-4 py-3 flex items-center justify-between">
+          <div className="bg-[#8F2D16] text-white px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm">Notifications</span>
+              <span className="font-semibold text-sm">Action Alerts &amp; Notifications</span>
               {unreadCount > 0 && (
-                <span className="text-[11px] font-mono bg-rose-600 text-white px-1.5 py-0.5 rounded-full">
+                <span className="text-[11px] font-mono bg-[#E87512] text-white px-2 py-0.2 rounded-full font-bold">
                   {unreadCount} unread
                 </span>
               )}

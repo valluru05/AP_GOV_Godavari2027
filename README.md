@@ -93,11 +93,35 @@ The platform includes a pre-seeded, end-to-end demonstration scenario illustrati
 
 ## Running the Application Locally
 
-### Prerequisites
-- Python 3.12+
-- Node.js 18+ and npm
+### Single-Command Quickstart (Frontend + Backend Concurrently)
 
-### 1. Backend Setup (FastAPI)
+Start both the FastAPI backend and Vite React frontend development servers simultaneously with a single command from the project root:
+
+```bash
+npm run dev
+```
+
+- **Web Application Portal:** [http://localhost:5173](http://localhost:5173)
+- **OpenAPI Interactive Documentation:** [http://127.0.0.1:8008/docs](http://127.0.0.1:8008/docs)
+- **Deep Health & Readiness Check:** [http://127.0.0.1:8008/health](http://127.0.0.1:8008/health)
+
+Press `Ctrl+C` in your terminal to cleanly terminate both servers simultaneously without leaving orphaned processes.
+
+### Dedicated Service Commands
+
+If you prefer to run services individually or execute automated tests:
+
+- **FastAPI Backend only:** `npm run dev:backend`
+- **React Frontend only:** `npm run dev:frontend`
+- **Frontend Production Build:** `npm run build`
+- **Frontend Linter (oxlint):** `npm run lint`
+- **Backend Test Suite (pytest):** `npm run test:backend`
+
+---
+
+### Manual Service Setup (Alternative)
+
+#### 1. Backend Setup (FastAPI)
 ```bash
 # Activate virtual environment
 source .venv/bin/activate

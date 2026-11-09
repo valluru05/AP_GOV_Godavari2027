@@ -37,8 +37,9 @@ export const VendorDashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Submit Progress Modal State
+  // Submit Progress Modal State (4-Step Guided Workflow)
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+  const [submitStep, setSubmitStep] = useState<1 | 2 | 3 | 4>(1);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
@@ -47,6 +48,10 @@ export const VendorDashboardPage: React.FC = () => {
   const [activitiesDescription, setActivitiesDescription] = useState('');
   const [delayOrBlocker, setDelayOrBlocker] = useState('');
   const [estimatedCompletionDate, setEstimatedCompletionDate] = useState('');
+  const [attachedFiles, setAttachedFiles] = useState<Array<{ name: string; caption: string; size_kb: number }>>([
+    { name: 'Site_Inspection_Geotag_01.jpg', caption: 'Concrete curing test & perimeter alignment', size_kb: 1240 },
+  ]);
+  const [newPhotoCaption, setNewPhotoCaption] = useState('');
 
   // Review Submission Modal State (for Admins / PMs)
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -88,6 +93,7 @@ export const VendorDashboardPage: React.FC = () => {
   }, [id]);
 
   const handleOpenSubmitModal = (wp?: AssignedWorkPackageSummary) => {
+    setSubmitStep(1);
     if (wp) {
       setSelectedPackage(wp);
       setProgressPercentage(wp.reported_progress_percentage || 50);
@@ -655,158 +661,338 @@ export const VendorDashboardPage: React.FC = () => {
         )}
       </div>
 
-      {/* Progress Submission Modal */}
+      {/* Progress Submission Modal (4-Step Guided Non-Technical Workflow) */}
       <Modal
         isOpen={isSubmitModalOpen}
         onClose={() => setIsSubmitModalOpen(false)}
-        title="Submit Contractor Progress Report"
+        title="Update Work Progress — Guided Submission"
+        maxWidth="lg"
       >
-        <form onSubmit={handleSubmitProgress} className="space-y-4">
+        <div className="space-y-4">
+          {/* Step Indicator Header */}
+          <div className="flex items-center justify-between pb-3 border-b border-[#E9DED2] text-xs">
+            {[
+              { num: 1, label: 'Select Work' },
+              { num: 2, label: 'Progress Details' },
+              { num: 3, label: 'Site Evidence' },
+              { num: 4, label: 'Review & Submit' },
+            ].map((st) => (
+              <div
+                key={st.num}
+                className={`flex items-center gap-1.5 ${
+                  submitStep === st.num
+                    ? 'text-[#8F2D16] font-bold'
+                    : submitStep > st.num
+                    ? 'text-[#15803D] font-medium'
+                    : 'text-textMuted'
+                }`}
+              >
+                <span
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                    submitStep === st.num
+                      ? 'bg-[#8F2D16] text-white shadow-sm'
+                      : submitStep > st.num
+                      ? 'bg-[#15803D] text-white'
+                      : 'bg-[#FAF4EC] text-textSecondary border border-[#E9DED2]'
+                  }`}
+                >
+                  {submitStep > st.num ? '✓' : st.num}
+                </span>
+                <span className="hidden sm:inline">{st.label}</span>
+              </div>
+            ))}
+          </div>
+
           {submitError && (
-            <div className="p-3 bg-govError-light border border-govError-border rounded-lg text-xs text-govError font-medium flex items-center gap-2">
+            <div className="p-3 bg-govError-light border border-govError-border rounded-xl text-xs text-govError font-medium flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               {submitError}
             </div>
           )}
 
           {submitSuccess && (
-            <div className="p-3 bg-govSuccess-light border border-govSuccess-border rounded-lg text-xs text-govSuccess font-medium flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              {submitSuccess}
+            <div className="p-4 bg-govSuccess-light border border-govSuccess-border rounded-xl text-xs text-govSuccess font-medium flex flex-col items-center text-center gap-2">
+              <CheckCircle2 className="w-8 h-8 text-[#15803D]" />
+              <span className="text-sm font-bold text-[#15803D]">{submitSuccess}</span>
+              <p className="text-[11px] text-[#166534]">
+                A notification has been sent to the designated field inspection cell.
+              </p>
             </div>
           )}
 
-          {/* Work Package Selector */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Target Work Package *</label>
-            <select
-              aria-label="Target Work Package"
-              value={selectedPackage?.id || ''}
-              onChange={(e) => {
-                const found = assigned_work_packages.find((wp) => wp.id === e.target.value);
-                if (found) {
-                  setSelectedPackage(found);
-                  setProgressPercentage(found.reported_progress_percentage || 50);
-                }
-              }}
-              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/20"
-              required
-            >
-              {assigned_work_packages.map((wp) => (
-                <option key={wp.id} value={wp.id}>
-                  {wp.work_id} — {wp.title} (Current: {wp.reported_progress_percentage}%)
-                </option>
-              ))}
-            </select>
-          </div>
+          {!submitSuccess && (
+            <form onSubmit={handleSubmitProgress} className="space-y-4">
+              {/* STEP 1: SELECT ASSIGNED WORK */}
+              {submitStep === 1 && (
+                <div className="space-y-3">
+                  <span className="text-xs font-bold text-textPrimary block">
+                    Step 1: Choose the assigned work package to update
+                  </span>
 
-          {/* Progress Percentage Slider */}
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-semibold text-slate-700">
-                Claimed Progress Percentage: <strong className="text-brand font-mono text-sm">{progressPercentage}%</strong>
-              </label>
-              <span className="text-[11px] text-slate-500 font-mono">
-                Current verified: {selectedPackage?.verified_progress_percentage || 0}%
-              </span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              value={progressPercentage}
-              onChange={(e) => setProgressPercentage(Number(e.target.value))}
-              className="w-full accent-brand h-2 bg-slate-200 rounded-lg cursor-pointer"
-            />
-            <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
-              <span>0% (Commencing)</span>
-              <span>50% (Mid-way)</span>
-              <span>100% (Substantially Complete)</span>
-            </div>
-          </div>
+                  <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                    {assigned_work_packages.map((wp) => {
+                      const isSelected = selectedPackage?.id === wp.id;
+                      return (
+                        <div
+                          key={wp.id}
+                          onClick={() => {
+                            setSelectedPackage(wp);
+                            setProgressPercentage(wp.reported_progress_percentage || 50);
+                          }}
+                          className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                            isSelected
+                              ? 'border-[#8F2D16] bg-[#FDF2EB] ring-1 ring-[#8F2D16]'
+                              : 'border-[#E9DED2] bg-white hover:border-[#E87512]'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-xs text-textPrimary">{wp.title}</span>
+                            <Badge variant="brand" size="sm">{wp.workflow_state}</Badge>
+                          </div>
+                          <div className="flex items-center justify-between text-[11px] text-textSecondary mt-1">
+                            <span>Ref: {wp.work_id} &bull; {wp.category}</span>
+                            <span>Current Verified: <strong className="text-[#15803D]">{wp.verified_progress_percentage}%</strong></span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
 
-          {/* Warning on 100% */}
-          {Number(progressPercentage) === 100 && (
-            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <span>
-                <strong>Statutory Notice:</strong> Reporting 100% does NOT automatically declare this work package verified or complete.
-                Mandatory physical inspection and pressure/quality testing will be scheduled immediately.
-              </span>
-            </div>
+                  <div className="flex justify-end gap-2 pt-3 border-t border-[#E9DED2]">
+                    <Button variant="secondary" onClick={() => setIsSubmitModalOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="saffron"
+                      type="button"
+                      disabled={!selectedPackage}
+                      onClick={() => setSubmitStep(2)}
+                    >
+                      Next: Progress Details &rarr;
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 2: ENTER PROGRESS PERCENTAGE & DESCRIPTION */}
+              {submitStep === 2 && (
+                <div className="space-y-3">
+                  <div className="p-3 bg-[#FAF4EC] rounded-xl border border-[#E9DED2] text-xs">
+                    <span className="text-textSecondary block text-[10px] uppercase font-semibold">Selected Work:</span>
+                    <strong className="text-textPrimary text-xs">{selectedPackage?.title}</strong>
+                  </div>
+
+                  {/* Progress Percentage Slider */}
+                  <div className="bg-[#FFFDF9] p-3.5 rounded-xl border border-[#E9DED2]">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-semibold text-textPrimary">
+                        Work Completed Percentage: <strong className="text-[#8F2D16] font-mono text-sm">{progressPercentage}%</strong>
+                      </label>
+                      <span className="text-[11px] text-[#15803D] font-bold">
+                        Verified Base: {selectedPackage?.verified_progress_percentage || 0}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value={progressPercentage}
+                      onChange={(e) => setProgressPercentage(Number(e.target.value))}
+                      className="w-full accent-[#E87512] h-2 bg-[#E9DED2] rounded-lg cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[10px] text-textSecondary mt-1">
+                      <span>0% (Just Starting)</span>
+                      <span>50% (Halfway)</span>
+                      <span>100% (Fully Complete)</span>
+                    </div>
+                  </div>
+
+                  {/* Warning on 100% */}
+                  {Number(progressPercentage) === 100 && (
+                    <div className="p-3 bg-[#FFFBEB] border border-[#FDE68A] rounded-xl text-xs text-[#B45309] flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 text-[#B45309] shrink-0 mt-0.5" />
+                      <span>
+                        <strong>Statutory Notice:</strong> Reporting 100% triggers mandatory engineering inspection before formal approval.
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Activities Description */}
+                  <div>
+                    <label className="block text-xs font-semibold text-textPrimary mb-1">
+                      Works Carried Out * (Simple Description)
+                    </label>
+                    <textarea
+                      required
+                      rows={3}
+                      placeholder="e.g. Completed concrete flooring pour, assembled safety railings, finished inlet water pipe connection..."
+                      value={activitiesDescription}
+                      onChange={(e) => setActivitiesDescription(e.target.value)}
+                      className="w-full px-3 py-2 text-xs bg-[#FFFDF9] border border-[#E9DED2] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#8F2D16]"
+                    />
+                    <span className="text-[10px] text-textSecondary mt-0.5 block">
+                      Minimum 10 characters required. Describe what your team accomplished.
+                    </span>
+                  </div>
+
+                  {/* Delay Declaration */}
+                  <div>
+                    <label className="block text-xs font-semibold text-textPrimary mb-1">
+                      Site Delays or Blockers (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Rain on site, awaiting electricity line connection..."
+                      value={delayOrBlocker}
+                      onChange={(e) => setDelayOrBlocker(e.target.value)}
+                      className="w-full px-3 py-1.5 text-xs bg-[#FFFDF9] border border-[#E9DED2] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#8F2D16]"
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center pt-3 border-t border-[#E9DED2]">
+                    <Button variant="secondary" type="button" onClick={() => setSubmitStep(1)}>
+                      &larr; Back
+                    </Button>
+                    <Button
+                      variant="saffron"
+                      type="button"
+                      disabled={activitiesDescription.trim().length < 10}
+                      onClick={() => setSubmitStep(3)}
+                    >
+                      Next: Upload Evidence &rarr;
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3: UPLOAD SUPPORTING EVIDENCE */}
+              {submitStep === 3 && (
+                <div className="space-y-3">
+                  <span className="text-xs font-bold text-textPrimary block">
+                    Step 3: Attach photographic evidence or site completion documents
+                  </span>
+
+                  {/* Add photo / attachment mockup */}
+                  <div className="p-3 bg-[#FAF4EC] rounded-xl border border-[#E9DED2] space-y-2">
+                    <span className="text-xs font-semibold text-textPrimary block">Add Site Photo / Test Certificate</span>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Photo description (e.g. Ghat ramp handrails installed)"
+                        value={newPhotoCaption}
+                        onChange={(e) => setNewPhotoCaption(e.target.value)}
+                        className="flex-1 px-3 py-1.5 text-xs bg-white border border-[#E9DED2] rounded-lg"
+                      />
+                      <Button
+                        variant="saffron"
+                        size="sm"
+                        type="button"
+                        onClick={() => {
+                          if (newPhotoCaption.trim()) {
+                            setAttachedFiles((prev) => [
+                              ...prev,
+                              {
+                                name: `Evidence_Photo_${Date.now().toString().slice(-4)}.jpg`,
+                                caption: newPhotoCaption.trim(),
+                                size_kb: 1650,
+                              },
+                            ]);
+                            setNewPhotoCaption('');
+                          }
+                        }}
+                      >
+                        Attach Photo
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Attached Photos List */}
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                    {attachedFiles.map((f, i) => (
+                      <div
+                        key={i}
+                        className="p-2.5 bg-white border border-[#E9DED2] rounded-xl flex items-center justify-between text-xs"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <UploadCloud className="w-4 h-4 text-[#8F2D16] shrink-0" />
+                          <div className="min-w-0">
+                            <span className="font-semibold text-textPrimary block truncate">{f.name}</span>
+                            <span className="text-[10px] text-textSecondary truncate block">{f.caption}</span>
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-textMuted shrink-0">{f.size_kb} KB</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex justify-between items-center pt-3 border-t border-[#E9DED2]">
+                    <Button variant="secondary" type="button" onClick={() => setSubmitStep(2)}>
+                      &larr; Back
+                    </Button>
+                    <Button variant="saffron" type="button" onClick={() => setSubmitStep(4)}>
+                      Next: Review Summary &rarr;
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 4: REVIEW & SUBMIT */}
+              {submitStep === 4 && (
+                <div className="space-y-3">
+                  <span className="text-xs font-bold text-textPrimary block">
+                    Step 4: Confirm details before sending to government review
+                  </span>
+
+                  <div className="p-3.5 bg-white rounded-xl border border-[#E9DED2] space-y-2 text-xs">
+                    <div className="flex justify-between border-b border-[#E9DED2]/60 pb-1.5">
+                      <span className="text-textSecondary">Work Package:</span>
+                      <strong className="text-textPrimary">{selectedPackage?.title}</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-[#E9DED2]/60 pb-1.5">
+                      <span className="text-textSecondary">New Reported Progress:</span>
+                      <strong className="text-[#8F2D16] font-mono text-sm">{progressPercentage}%</strong>
+                    </div>
+                    <div>
+                      <span className="text-textSecondary block mb-1">Execution Summary:</span>
+                      <p className="bg-[#FAF4EC] p-2 rounded-lg text-textPrimary border border-[#E9DED2]/60">
+                        {activitiesDescription}
+                      </p>
+                    </div>
+                    {delayOrBlocker && (
+                      <div>
+                        <span className="text-[#B45309] font-medium block">Reported Site Delay:</span>
+                        <p className="text-textSecondary">{delayOrBlocker}</p>
+                      </div>
+                    )}
+                    <div className="flex justify-between pt-1">
+                      <span className="text-textSecondary">Attached Evidence:</span>
+                      <span className="font-bold text-[#15803D]">{attachedFiles.length} files attached</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-[#FDF2EB] rounded-xl border border-[#F7DDD0] text-[11px] text-[#8F2D16] leading-relaxed">
+                    <strong>Vendor Declaration:</strong> I hereby certify that the reported physical progress and materials erected on site conform to Andhra Pradesh PWD standards and are ready for field verification.
+                  </div>
+
+                  <div className="flex justify-between items-center pt-3 border-t border-[#E9DED2]">
+                    <Button variant="secondary" type="button" onClick={() => setSubmitStep(3)}>
+                      &larr; Back
+                    </Button>
+                    <Button
+                      variant="primary"
+                      type="submit"
+                      isLoading={submitting}
+                      icon={<Send className="w-3.5 h-3.5" />}
+                    >
+                      Submit Progress Claim
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </form>
           )}
-
-          {/* Activities Description */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Activities & Works Executed *
-            </label>
-            <textarea
-              required
-              rows={3}
-              placeholder="Specify structural milestones finished, materials used, concrete pour dates, or equipment erected..."
-              value={activitiesDescription}
-              onChange={(e) => setActivitiesDescription(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/20"
-            />
-            <span className="text-[11px] text-slate-400 mt-0.5 block">
-              Minimum 10 characters required. Provide technical specifics for the site engineer.
-            </span>
-          </div>
-
-          {/* Delay / Impediment Declaration */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-              <span>Delay / Site Impediment Declaration (Optional)</span>
-              <span className="text-[11px] text-amber-600 font-medium">Transparent Bottleneck Declaration</span>
-            </label>
-            <textarea
-              rows={2}
-              placeholder="Declare any site handover delays, power cut, heavy rain, or supply chain blockages..."
-              value={delayOrBlocker}
-              onChange={(e) => setDelayOrBlocker(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/20"
-            />
-          </div>
-
-          {/* Estimated Completion Date */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Estimated Completion Date
-            </label>
-            <input
-              type="date"
-              value={estimatedCompletionDate}
-              onChange={(e) => setEstimatedCompletionDate(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/20"
-            />
-          </div>
-
-          {/* Evidence Upload Mock */}
-          <div className="border border-dashed border-slate-300 rounded-lg p-3 text-center bg-slate-50">
-            <UploadCloud className="w-5 h-5 text-slate-400 mx-auto mb-1" />
-            <span className="text-xs text-slate-600 font-medium block">
-              Auto-attached site report & geotagged evidence
-            </span>
-            <span className="text-[11px] text-slate-400">PDF Report & Site Geo-photos will be archived in immutable storage</span>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
-            <Button variant="secondary" onClick={() => setIsSubmitModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              isLoading={submitting}
-              disabled={activitiesDescription.length < 10}
-              icon={<Send className="w-3.5 h-3.5" />}
-            >
-              Submit Progress Claim
-            </Button>
-          </div>
-        </form>
+        </div>
       </Modal>
 
       {/* Official Review Modal (Admins / PMs) */}

@@ -1,0 +1,27 @@
+{
+  "name": "civicproof",
+  "version": "1.0.0",
+  "description": "CivicProof - Sri Godavari Pushkaralu 2027 Infrastructure Readiness & Asset Monitoring Platform",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:backend": "node scripts/dev.mjs --backend-only",
+    "dev:frontend": "node scripts/dev.mjs --frontend-only",
+    "start": "node scripts/dev.mjs",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint",
+    "test:backend": "PYTHONPATH=backend pytest backend/tests -v"
+  },
+  "keywords": [
+    "godavari-pushkaralu",
+    "infrastructure",
+    "civicproof",
+    "fastapi",
+    "react",
+    "vite"
+  ],
+  "author": "CivicProof Engineering Team",
+  "license": "UNLICENSED"
+}
+

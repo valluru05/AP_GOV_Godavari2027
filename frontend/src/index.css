@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 @import 'leaflet/dist/leaflet.css';
 
 @tailwind base;
@@ -9,14 +9,15 @@
 .leaflet-container {
   font-family: 'Inter', sans-serif !important;
   z-index: 10;
+  background-color: #F8F4EE !important;
 }
 
 .leaflet-popup-content-wrapper {
   padding: 0 !important;
   border-radius: 0.75rem !important;
   overflow: hidden !important;
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1) !important;
-  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 10px 25px -5px rgba(53, 37, 30, 0.15), 0 8px 10px -6px rgba(53, 37, 30, 0.1) !important;
+  border: 1px solid #E9DED2 !important;
 }
 
 .leaflet-popup-content {
@@ -26,27 +27,28 @@
 
 .leaflet-popup-tip {
   background: white !important;
-  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.1) !important;
+  box-shadow: 0 4px 6px -1px rgba(53, 37, 30, 0.1) !important;
 }
 
 @layer base {
   body {
-    @apply bg-background text-textPrimary font-sans antialiased min-h-screen selection:bg-brand-light selection:text-brand;
+    @apply bg-background text-textPrimary font-sans antialiased min-h-screen selection:bg-saffron-light selection:text-saffron;
+    background-color: #FFF8EE;
   }
 }
 
-/* Custom scrollbars */
+/* Custom scrollbars in warm Pushkaralu palette */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: #F7EEE3;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #D8C9BB;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #C4B1A0;
 }

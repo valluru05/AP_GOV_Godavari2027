@@ -13,6 +13,7 @@ import {
 import { api } from '../../services/api';
 import { Badge, type BadgeVariant } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { ApGovernmentSeal } from '../../components/common/BrandEmblems';
 import type {
   ReportType,
   ReportTypeOption,
@@ -265,16 +266,19 @@ export const ReportsPage: React.FC = () => {
       {/* Printable Watermark Header & Notice */}
       <div className="hidden print:block border-b-2 border-slate-900 pb-4 mb-4">
         <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-xl font-bold uppercase tracking-tight text-slate-900">
-              Government of Andhra Pradesh
-            </h1>
-            <h2 className="text-sm font-semibold text-slate-700">
-              Godavari Pushkaralu 2027 — Municipal Infrastructure Readiness Audit Report
-            </h2>
-            <p className="text-xs text-slate-500 mt-1">
-              Document Category: {activeReport?.category} | Report Identifier: {selectedReportId.toUpperCase()}
-            </p>
+          <div className="flex items-start gap-3">
+            <ApGovernmentSeal className="w-10 h-10 shrink-0" />
+            <div>
+              <h1 className="text-xl font-bold uppercase tracking-tight text-slate-900">
+                Government of Andhra Pradesh
+              </h1>
+              <h2 className="text-sm font-semibold text-slate-700">
+                Godavari Pushkaralu 2027 — Municipal Infrastructure Readiness Audit Report
+              </h2>
+              <p className="text-xs text-slate-500 mt-1">
+                Document Category: {activeReport?.category} | Report Identifier: {selectedReportId.toUpperCase()}
+              </p>
+            </div>
           </div>
           <div className="text-right text-xs text-slate-600">
             <p className="font-mono">Generated: {reportData?.metadata.generated_at ? new Date(reportData.metadata.generated_at).toLocaleString('en-IN') : new Date().toLocaleString()}</p>

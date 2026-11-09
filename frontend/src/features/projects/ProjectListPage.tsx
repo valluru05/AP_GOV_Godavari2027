@@ -194,7 +194,7 @@ export const ProjectListPage: React.FC = () => {
             placeholder="Search projects by name, code, description..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-borderLight rounded-lg text-textPrimary focus:ring-1 focus:ring-brand focus:border-brand"
+            className="w-full pl-9 pr-3 py-1.5 text-xs bg-[#FFFDF9] border border-borderLight rounded-lg text-textPrimary focus:ring-1 focus:ring-brand focus:border-brand"
           />
         </div>
 
@@ -203,7 +203,7 @@ export const ProjectListPage: React.FC = () => {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="px-2.5 py-1.5 text-xs bg-slate-50 border border-borderLight rounded-lg text-textPrimary focus:ring-1 focus:ring-brand"
+            className="px-2.5 py-1.5 text-xs bg-[#FFFDF9] border border-borderLight rounded-lg text-textPrimary focus:ring-1 focus:ring-brand"
           >
             <option value="">All Categories</option>
             <option value="Drinking Water">Drinking Water</option>
@@ -217,7 +217,7 @@ export const ProjectListPage: React.FC = () => {
           <select
             value={zoneId}
             onChange={(e) => setZoneId(e.target.value)}
-            className="px-2.5 py-1.5 text-xs bg-slate-50 border border-borderLight rounded-lg text-textPrimary focus:ring-1 focus:ring-brand"
+            className="px-2.5 py-1.5 text-xs bg-[#FFFDF9] border border-borderLight rounded-lg text-textPrimary focus:ring-1 focus:ring-brand"
           >
             <option value="">All Ghats / Sectors</option>
             {zones.map((z) => (
@@ -231,7 +231,7 @@ export const ProjectListPage: React.FC = () => {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="px-2.5 py-1.5 text-xs bg-slate-50 border border-borderLight rounded-lg text-textPrimary focus:ring-1 focus:ring-brand"
+            className="px-2.5 py-1.5 text-xs bg-[#FFFDF9] border border-borderLight rounded-lg text-textPrimary focus:ring-1 focus:ring-brand"
           >
             <option value="">All Statuses</option>
             <option value="In Progress">In Progress</option>
@@ -274,7 +274,7 @@ export const ProjectListPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50/80 border-b border-borderLight text-textSecondary font-semibold">
+                <tr className="bg-[#FAF4EC] border-b border-borderLight text-textSecondary font-semibold">
                   <th
                     onClick={() => handleSort('identifier')}
                     className="py-3 px-4 cursor-pointer hover:text-textPrimary"
@@ -307,7 +307,7 @@ export const ProjectListPage: React.FC = () => {
                     <tr
                       key={p.id}
                       onClick={() => navigate(`/projects/${p.id}`)}
-                      className="hover:bg-slate-50/70 transition-colors cursor-pointer group"
+                      className="hover:bg-[#FAF4EC]/70 transition-colors cursor-pointer group"
                     >
                       <td className="py-3 px-4 font-mono font-bold text-brand whitespace-nowrap">
                         {p.project_identifier}
