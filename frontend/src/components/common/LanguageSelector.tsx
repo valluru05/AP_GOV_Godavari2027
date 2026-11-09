@@ -57,8 +57,8 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-1.5 w-44 rounded-xl bg-white border border-[#E9DED2] shadow-dropdown py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-          <div className="px-3 py-1 text-[10px] uppercase font-bold tracking-wider text-[#7C7168] border-b border-[#FAF4EC] mb-1">
+        <div className="absolute right-0 mt-2 w-48 rounded-xl bg-white border border-[#E9DED2] shadow-2xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100 ring-1 ring-black/5">
+          <div className="px-3.5 py-1.5 text-[10px] uppercase font-bold tracking-wider text-[#7C7168] border-b border-[#FAF4EC] mb-1">
             Language / భాష / भाषा
           </div>
           {AVAILABLE_LANGUAGES.map((lang) => {
@@ -66,15 +66,16 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
             return (
               <button
                 key={lang.code}
+                type="button"
                 onClick={() => handleSelectLanguage(lang.code)}
-                className={`w-full flex items-center justify-between px-3 py-2 text-xs text-left transition-colors ${
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs text-left transition-colors cursor-pointer ${
                   isSelected
                     ? 'bg-[#FEF3E8] text-[#8F2D16] font-bold'
                     : 'text-[#35251E] hover:bg-[#FAF4EC]'
                 }`}
               >
                 <div className="flex flex-col">
-                  <span className="font-semibold">{lang.nativeName}</span>
+                  <span className="font-semibold text-xs">{lang.nativeName}</span>
                   <span className="text-[10px] text-[#7C7168] font-normal">{lang.name}</span>
                 </div>
                 {isSelected && <Check className="w-4 h-4 text-[#E87512] shrink-0" />}

@@ -185,22 +185,23 @@ export const AssetListPage: React.FC = () => {
     }
   };
 
-  const getCategoryIcon = (category: string) => {
+  const getCategoryIcon = (category: string, isSelected?: boolean) => {
+    const iconClass = `w-4 h-4 shrink-0 ${isSelected ? 'text-white' : ''}`;
     switch (category) {
       case 'Drinking-water units':
-        return <Droplets className="w-4 h-4 text-sky-600" />;
+        return <Droplets className={`${iconClass} ${isSelected ? '' : 'text-sky-600'}`} />;
       case 'Public lighting':
-        return <Lightbulb className="w-4 h-4 text-amber-500" />;
+        return <Lightbulb className={`${iconClass} ${isSelected ? '' : 'text-amber-500'}`} />;
       case 'Sanitation units':
-        return <Sparkles className="w-4 h-4 text-emerald-600" />;
+        return <Sparkles className={`${iconClass} ${isSelected ? '' : 'text-emerald-600'}`} />;
       case 'River safety installation':
-        return <LifeBuoy className="w-4 h-4 text-rose-600" />;
+        return <LifeBuoy className={`${iconClass} ${isSelected ? '' : 'text-rose-600'}`} />;
       case 'Signage':
-        return <Signpost className="w-4 h-4 text-indigo-600" />;
+        return <Signpost className={`${iconClass} ${isSelected ? '' : 'text-indigo-600'}`} />;
       case 'Waste collection facilities':
-        return <Trash2 className="w-4 h-4 text-stone-600" />;
+        return <Trash2 className={`${iconClass} ${isSelected ? '' : 'text-stone-600'}`} />;
       default:
-        return <PackageCheck className="w-4 h-4 text-slate-600" />;
+        return <PackageCheck className={`${iconClass} ${isSelected ? '' : 'text-slate-600'}`} />;
     }
   };
 
@@ -371,29 +372,32 @@ export const AssetListPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setCategoryFilter('')}
-            className={`px-3 py-1.5 rounded-full font-medium transition-colors shrink-0 ${
+            className={`px-3 py-1.5 rounded-full font-semibold transition-all shrink-0 text-xs ${
               categoryFilter === ''
-                ? 'bg-brand-600 text-white shadow-sm'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                ? 'bg-[#8F2D16] text-white shadow-sm ring-2 ring-[#8F2D16]/30'
+                : 'bg-white border border-[#E9DED2] text-[#35251E] hover:bg-[#FAF4EC] hover:border-[#8F2D16]/40 shadow-subtle'
             }`}
           >
             All Categories
           </button>
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setCategoryFilter(cat)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-medium transition-colors shrink-0 ${
-                categoryFilter === cat
-                  ? 'bg-brand-600 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {getCategoryIcon(cat)}
-              <span>{cat}</span>
-            </button>
-          ))}
+          {CATEGORIES.map((cat) => {
+            const isSelected = categoryFilter === cat;
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setCategoryFilter(isSelected ? '' : cat)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold transition-all shrink-0 text-xs ${
+                  isSelected
+                    ? 'bg-[#8F2D16] text-white shadow-sm ring-2 ring-[#8F2D16]/30'
+                    : 'bg-white border border-[#E9DED2] text-[#35251E] hover:bg-[#FAF4EC] hover:border-[#8F2D16]/40 shadow-subtle'
+                }`}
+              >
+                {getCategoryIcon(cat, isSelected)}
+                <span>{cat}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

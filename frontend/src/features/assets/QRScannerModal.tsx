@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Html5Qrcode, type CameraDevice } from 'html5-qrcode';
@@ -7,7 +7,6 @@ import {
   CameraOff,
   Flashlight,
   FlashlightOff,
-  UploadCloud,
   Search,
   AlertCircle,
   CheckCircle2,
@@ -38,8 +37,8 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  // Active UI modes: 'camera' | 'manual' | 'file'
-  const [activeTab, setActiveTab] = useState<'camera' | 'manual' | 'file'>('camera');
+  // Active UI modes: 'camera' | 'manual'
+  const [activeTab, setActiveTab] = useState<'camera' | 'manual'>('camera');
 
   // Scanner state
   const [scannerInstance, setScannerInstance] = useState<Html5Qrcode | null>(null);
@@ -55,10 +54,8 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [resolvedAsset, setResolvedAsset] = useState<Asset | null>(null);
-  const [fileScanStatus, setFileScanStatus] = useState<string>('');
 
   const scannerContainerId = 'civicproof-html5-qr-reader';
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Normalize decoded string (handle full URLs or identifiers)
   const extractCleanIdentifier = (decodedStr: string): string => {
@@ -224,34 +221,6 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
     setSelectedCameraId(nextCamera.id);
   };
 
-  // Scan QR code from an uploaded image file
-  const handleFileScan = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setLoading(true);
-      setFileScanStatus('Analyzing image file for optical matrix...');
-      setErrorMessage('');
-      setResolvedAsset(null);
-
-      const html5Qr = scannerInstance || new Html5Qrcode(scannerContainerId);
-      const decodedText = await html5Qr.scanFile(file, false);
-      setFileScanStatus('');
-      await handleLookup(decodedText);
-    } catch (err: any) {
-      setFileScanStatus('');
-      setErrorMessage(
-        'Could not decode a valid QR code from this image. Please ensure the tag is well-lit and unobstructed.'
-      );
-    } finally {
-      setLoading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
   // When modal opens/closes or changes tab
   useEffect(() => {
     if (isOpen && activeTab === 'camera') {
@@ -324,18 +293,6 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
           >
             <Search className="w-4 h-4" />
             <span>{t('common.search')} / Manual ID</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('file')}
-            className={`flex items-center gap-2 py-2 px-3.5 text-xs font-semibold border-b-2 transition-all ${
-              activeTab === 'file'
-                ? 'border-[#8F2D16] text-[#8F2D16]'
-                : 'border-transparent text-[#7C7168] hover:text-[#35251E]'
-            }`}
-          >
-            <UploadCloud className="w-4 h-4" />
-            <span>{t('qr.uploadQrImage')}</span>
           </button>
         </div>
 
@@ -474,41 +431,6 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
                 or paste a verification URL.
               </p>
             </div>
-          </div>
-        )}
-
-        {/* Tab 3: Upload QR Photo */}
-        {activeTab === 'file' && (
-          <div className="space-y-4 py-2">
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-[#E9DED2] hover:border-[#8F2D16] rounded-2xl p-6 bg-[#FAF4EC]/50 hover:bg-[#FAF4EC] flex flex-col items-center justify-center text-center cursor-pointer transition-all group"
-            >
-              <div className="w-12 h-12 rounded-full bg-[#FEF3E8] text-[#8F2D16] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
-                <UploadCloud className="w-6 h-6" />
-              </div>
-              <h4 className="text-sm font-bold text-[#35251E] mb-1">
-                {t('qr.uploadQrPrompt')}
-              </h4>
-              <p className="text-xs text-[#7C7168] max-w-sm mb-3">
-                Select an image file (PNG, JPG, WEBP) from your device. The optical decoder will read the tag matrix automatically.
-              </p>
-              <Button size="sm" variant="outline" type="button">
-                Select Image
-              </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileScan}
-                className="hidden"
-              />
-            </div>
-            {fileScanStatus && (
-              <p className="text-xs text-center text-[#8F2D16] animate-pulse font-medium">
-                {fileScanStatus}
-              </p>
-            )}
           </div>
         )}
 

@@ -38,3 +38,4 @@ export const changeAppLanguage = (languageCode: SupportedLanguage) => {
 };
 
 export default i18n;
+

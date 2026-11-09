@@ -14,6 +14,17 @@ export default {
           hover: '#73200E',
           light: '#FDF2EB',
           subtle: '#FCE4CB',
+          50: '#FDF2EB',
+          100: '#FCE4CB',
+          200: '#F7DDD0',
+          300: '#EAB89A',
+          400: '#DC7C5A',
+          500: '#C25E09',
+          600: '#8F2D16',
+          700: '#73200E',
+          800: '#5E1809',
+          900: '#451005',
+          950: '#2A0A03',
         },
         saffron: {
           DEFAULT: '#E87512',  // Saffron orange

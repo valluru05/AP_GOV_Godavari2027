@@ -80,6 +80,16 @@ export const AppLayout: React.FC = () => {
     }));
   };
 
+  // Determine if a sub-item is active, taking query parameters into account so sibling
+  // sub-items (e.g. /assets, /assets?scan=open, /assets?filter=maintenance) don't all highlight simultaneously.
+  const isSubItemActive = (targetPath: string) => {
+    const currentFullPath = location.pathname + location.search;
+    if (targetPath.includes('?')) {
+      return currentFullPath === targetPath;
+    }
+    return location.pathname === targetPath && !location.search;
+  };
+
   // Structured consolidated navigation groups with full multilingual translation
   // Note: Offline Field Sync is completely removed as mandated.
   const navGroups: NavGroup[] = [
@@ -180,7 +190,7 @@ export const AppLayout: React.FC = () => {
       {/* TOP HEADER: Government Identity & Pushkaralu 2027 Title  */}
       {/* ========================================================= */}
       <header className="bg-white border-b border-[#E9DED2] sticky top-0 z-30 shadow-subtle">
-        <div className="px-2.5 sm:px-6 h-16 flex items-center justify-between relative overflow-hidden">
+        <div className="px-2.5 sm:px-6 h-16 flex items-center justify-between relative">
           {/* Left: Hamburger + AP Seal + Godavari Pushkaralu Identity */}
           <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 z-10 min-w-0">
             {/* Mobile menu trigger: visible on <1024px screens */}
@@ -363,16 +373,14 @@ export const AppLayout: React.FC = () => {
                   {isExpanded && (
                     <div className="pl-6 pr-1 py-0.5 space-y-0.5">
                       {group.items?.map((sub) => {
-                        const isSubActive =
-                          location.pathname === sub.path ||
-                          (sub.path !== '/projects' && location.pathname.startsWith(sub.path));
+                        const active = isSubItemActive(sub.path);
                         return (
                           <NavLink
                             key={sub.path}
                             to={sub.path}
-                            className={({ isActive }) =>
+                            className={() =>
                               `block px-2.5 py-1.5 rounded-lg text-[11px] transition-colors truncate ${
-                                isActive || isSubActive
+                                active
                                   ? 'bg-[#E87512] text-white font-bold shadow-sm'
                                   : 'text-[#F0D5C7] hover:text-white hover:bg-white/10 font-medium'
                               }`
@@ -526,22 +534,25 @@ export const AppLayout: React.FC = () => {
 
                       {isExpanded && (
                         <div className="pl-8 space-y-1 py-1">
-                          {group.items?.map((sub) => (
-                            <NavLink
-                              key={sub.path}
-                              to={sub.path}
-                              onClick={() => setMobileMenuOpen(false)}
-                              className={({ isActive }) =>
-                                `block px-3 py-2 rounded-lg text-xs font-medium ${
-                                  isActive
-                                    ? 'bg-[#E87512] text-white font-bold'
-                                    : 'text-[#F0D5C7] hover:bg-white/10'
-                                }`
-                              }
-                            >
-                              {sub.name}
-                            </NavLink>
-                          ))}
+                          {group.items?.map((sub) => {
+                            const active = isSubItemActive(sub.path);
+                            return (
+                              <NavLink
+                                key={sub.path}
+                                to={sub.path}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className={() =>
+                                  `block px-3 py-2 rounded-lg text-xs font-medium ${
+                                    active
+                                      ? 'bg-[#E87512] text-white font-bold'
+                                      : 'text-[#F0D5C7] hover:bg-white/10'
+                                  }`
+                                }
+                              >
+                                {sub.name}
+                              </NavLink>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
