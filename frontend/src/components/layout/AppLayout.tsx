@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard,
   FolderGit2,
@@ -16,11 +17,13 @@ import {
   LogOut,
   ArrowRightLeft,
   Sliders,
+  X,
 } from 'lucide-react';
 import { useAuth, DEMO_ACCOUNTS } from '../../context/AuthContext';
 import { Badge } from '../ui/Badge';
 import { Modal } from '../ui/Modal';
 import { NotificationBellDropdown } from '../../features/notifications/NotificationBellDropdown';
+import { LanguageSelector } from '../common/LanguageSelector';
 import { ApGovernmentSeal, PushkaraluKalash, CivicProofLotusLogo } from '../common/BrandEmblems';
 import headerSketch from '../../assets/header-temple-sketch.png';
 import sidebarSilhouette from '../../assets/sidebar-silhouette-clean.png';
@@ -44,11 +47,12 @@ interface NavGroup {
 }
 
 export const AppLayout: React.FC = () => {
+  const { t } = useTranslation();
   const { user, logout, quickLogin, hasRole, hasPermission } = useAuth();
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [roleSwitcherOpen, setRoleSwitcherOpen] = useState<boolean>(false);
-  
+
   // Track open state for expandable navigation groups
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     projects: true,
@@ -76,88 +80,88 @@ export const AppLayout: React.FC = () => {
     }));
   };
 
-  // Structured consolidated navigation groups as specified in Section 4
+  // Structured consolidated navigation groups with full multilingual translation
+  // Note: Offline Field Sync is completely removed as mandated.
   const navGroups: NavGroup[] = [
     {
       id: 'home',
-      name: 'Executive Overview',
+      name: t('nav.executiveOverview'),
       path: '/dashboard',
       icon: LayoutDashboard,
     },
     {
       id: 'projects',
-      name: 'Projects & Works',
+      name: t('nav.projectsAndWorks'),
       icon: FolderGit2,
       path: '/projects',
       items: [
-        { name: 'All Projects', path: '/projects' },
-        { name: 'Contractors & Vendors', path: isVendor ? '/vendors/me' : '/vendors' },
+        { name: t('nav.allProjects'), path: '/projects' },
+        { name: t('nav.contractorsAndVendors'), path: isVendor ? '/vendors/me' : '/vendors' },
       ],
     },
     {
       id: 'field',
-      name: 'Field Operations',
+      name: t('nav.fieldOperations'),
       icon: ClipboardCheck,
       path: '/inspections',
       items: [
-        { name: 'Inspections', path: '/inspections' },
-        { name: 'Defects & Rework', path: '/defects' },
-        { name: 'Offline Field Sync', path: '/offline' },
+        { name: t('nav.inspections'), path: '/inspections' },
+        { name: t('nav.defectsAndRework'), path: '/defects' },
       ],
     },
     {
       id: 'assets',
-      name: 'Assets',
+      name: t('nav.assets'),
       icon: QrCode,
       path: '/assets',
       items: [
-        { name: 'Asset Registry', path: '/assets' },
-        { name: 'QR Scanner', path: '/assets?scan=open' },
-        { name: 'Maintenance', path: '/assets?filter=maintenance' },
+        { name: t('nav.assetRegistry'), path: '/assets' },
+        { name: t('nav.qrScanner'), path: '/assets?scan=open' },
+        { name: t('nav.maintenance'), path: '/assets?filter=maintenance' },
       ],
     },
     {
       id: 'readiness',
-      name: 'Readiness & Risk',
+      name: t('nav.readinessAndRisk'),
       icon: ShieldAlert,
       path: '/readiness',
       items: [
-        { name: 'Readiness Overview', path: '/readiness' },
-        { name: 'Dependency Graph', path: '/dependencies' },
+        { name: t('nav.readinessOverview'), path: '/readiness' },
+        { name: t('nav.dependencyGraph'), path: '/dependencies' },
       ],
     },
     {
       id: 'map',
-      name: 'Geographic Map',
+      name: t('nav.geographicMap'),
       path: '/map',
       icon: MapPin,
     },
     {
       id: 'tasks',
-      name: 'My Tasks',
+      name: t('nav.myTasks'),
       path: '/my-tasks',
       icon: CheckSquare,
       badge: 13,
     },
     {
       id: 'reports',
-      name: 'Reports & Audit',
+      name: t('nav.reportsAndAudit'),
       icon: FileSpreadsheet,
       path: '/reports',
       items: [
-        { name: 'Reports & Exports', path: '/reports' },
-        { name: 'Audit Explorer', path: '/admin/audit', permission: 'audit:read' },
+        { name: t('nav.reportsAndExports'), path: '/reports' },
+        { name: t('nav.auditExplorer'), path: '/admin/audit', permission: 'audit:read' },
       ],
     },
     {
       id: 'admin',
-      name: 'Administration',
+      name: t('nav.administration'),
       icon: Sliders,
       permission: 'users:read',
       path: '/admin/system',
       items: [
-        { name: 'System Configuration', path: '/admin/system', permission: 'users:read' },
-        { name: 'User Management', path: '/admin/users', permission: 'users:read' },
+        { name: t('nav.systemConfiguration'), path: '/admin/system', permission: 'users:read' },
+        { name: t('nav.userManagement'), path: '/admin/users', permission: 'users:read' },
       ],
     },
   ];
@@ -176,75 +180,82 @@ export const AppLayout: React.FC = () => {
       {/* TOP HEADER: Government Identity & Pushkaralu 2027 Title  */}
       {/* ========================================================= */}
       <header className="bg-white border-b border-[#E9DED2] sticky top-0 z-30 shadow-subtle">
-        <div className="px-3 sm:px-6 h-16 flex items-center justify-between relative overflow-hidden">
-          {/* Left: AP Seal + Godavari Pushkaralu Identity */}
-          <div className="flex items-center gap-3 sm:gap-6 z-10">
-            {/* Mobile menu trigger */}
+        <div className="px-2.5 sm:px-6 h-16 flex items-center justify-between relative overflow-hidden">
+          {/* Left: Hamburger + AP Seal + Godavari Pushkaralu Identity */}
+          <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 z-10 min-w-0">
+            {/* Mobile menu trigger: visible on <1024px screens */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="p-2 -ml-1 text-textSecondary hover:text-textPrimary md:hidden"
+              className="p-2 -ml-1 text-[#7C7168] hover:text-[#35251E] hover:bg-[#FAF4EC] rounded-lg lg:hidden transition-colors"
               aria-label="Open mobile navigation menu"
             >
               <Menu className="w-5 h-5" />
             </button>
 
             {/* Government of Andhra Pradesh Emblem */}
-            <div className="flex items-center gap-2.5 pr-3 sm:pr-5 border-r border-[#E9DED2]">
-              <ApGovernmentSeal className="w-9 h-9 shrink-0 drop-shadow-sm" />
+            <div className="flex items-center gap-2 sm:gap-2.5 pr-2 sm:pr-4 border-r border-[#E9DED2] shrink-0">
+              <ApGovernmentSeal className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 drop-shadow-sm" />
               <div className="hidden sm:flex flex-col">
-                <span className="text-[12px] font-bold text-[#166534] tracking-tight leading-none">
-                  Government of
+                <span className="text-[11px] sm:text-[12px] font-bold text-[#166534] tracking-tight leading-none">
+                  {t('header.apGovt').split(' ')[0]} {t('header.apGovt').split(' ')[1] || ''}
                 </span>
-                <span className="text-[12px] font-bold text-[#166534] tracking-tight leading-tight">
-                  Andhra Pradesh
+                <span className="text-[11px] sm:text-[12px] font-bold text-[#166534] tracking-tight leading-tight">
+                  {t('header.apGovt').split(' ').slice(2).join(' ') || 'Andhra Pradesh'}
                 </span>
               </div>
             </div>
 
             {/* Pushkaralu 2027 Logo & Title */}
-            <div className="flex items-center gap-2.5">
-              <PushkaraluKalash className="w-9 h-9 shrink-0 drop-shadow-sm" />
-              <div className="flex flex-col">
-                <span className="text-sm sm:text-base font-extrabold text-[#8F2D16] tracking-tight font-serif leading-none">
-                  Godavari Pushkaralu 2027
+            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+              <PushkaraluKalash className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 drop-shadow-sm" />
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs sm:text-base font-extrabold text-[#8F2D16] tracking-tight font-serif leading-none truncate">
+                  {t('header.eventTitle')}
                 </span>
-                <span className="text-[10px] sm:text-[11px] text-textSecondary font-medium mt-0.5 tracking-tight truncate max-w-[200px] sm:max-w-none">
-                  Sri Godavari Maha Pushkaralu &nbsp;|&nbsp; Rajamahendravaram
+                <span className="text-[9px] sm:text-[11px] text-[#7C7168] font-medium mt-0.5 tracking-tight truncate max-w-[150px] sm:max-w-xs md:max-w-none">
+                  {t('header.eventSubtitle')}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Middle: Subtle temple sketch watermark (hidden on mobile) */}
-          <div className="hidden xl:block absolute left-[44%] -translate-x-1/2 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
+          {/* Middle: Subtle temple sketch watermark (hidden on mobile and small tablet) */}
+          <div className="hidden xl:block absolute left-[48%] -translate-x-1/2 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
             <img src={headerSketch} alt="Ghats sketch" className="h-10 object-contain" />
           </div>
 
-          {/* Right: Notification Bell, IAS Profile & Role Switcher */}
-          <div className="flex items-center gap-2 sm:gap-4 z-10">
+          {/* Right: Language Selector, Role Switcher, Notifications, Profile */}
+          <div className="flex items-center gap-1.5 sm:gap-3 z-10 shrink-0">
+            {/* Language Selector Dropdown (Pillar 1) */}
+            <LanguageSelector compactOnMobile={true} />
+
             {/* Role Switcher Pill for Reviewers & Evaluators */}
             <button
               onClick={() => setRoleSwitcherOpen(true)}
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FEF3E8] hover:bg-[#FCE4CB] text-[#E87512] border border-[#FCE4CB] transition-colors text-xs font-semibold"
-              title="Switch user demo role"
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#FEF3E8] hover:bg-[#FCE4CB] text-[#E87512] border border-[#FCE4CB] transition-colors text-xs font-semibold shadow-subtle"
+              title={t('header.roleSwitcherTitle')}
             >
               <ArrowRightLeft className="w-3.5 h-3.5 text-[#E87512]" />
-              <span>Switch Role</span>
+              <span>{t('nav.switchRole')}</span>
             </button>
 
             {/* Notification Bell with Badge */}
             <NotificationBellDropdown />
 
             {/* User Profile Avatar & Designation */}
-            <div className="flex items-center gap-2.5 pl-2 border-l border-[#E9DED2]">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#E87512] to-[#8F2D16] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm ring-2 ring-[#FCE4CB]">
+            <div className="flex items-center gap-2 pl-1.5 sm:pl-2.5 border-l border-[#E9DED2]">
+              <div
+                onClick={() => setRoleSwitcherOpen(true)}
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-[#E87512] to-[#8F2D16] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm ring-2 ring-[#FCE4CB] cursor-pointer hover:scale-105 transition-transform"
+                title={`${user?.full_name || 'Official'} — Click to switch role`}
+              >
                 {user?.full_name?.charAt(0) || 'A'}
               </div>
-              <div className="hidden md:flex flex-col text-left">
-                <span className="text-xs font-bold text-textPrimary leading-none">
+              <div className="hidden xl:flex flex-col text-left">
+                <span className="text-xs font-bold text-textPrimary leading-none truncate max-w-[140px]">
                   {user?.full_name || 'Sri K. Ramesh Babu, IAS'}
                 </span>
-                <span className="text-[11px] text-textSecondary mt-0.5 leading-tight font-medium">
+                <span className="text-[10px] text-textSecondary mt-0.5 leading-tight font-medium truncate max-w-[140px]">
                   {primaryRole}
                 </span>
               </div>
@@ -257,9 +268,9 @@ export const AppLayout: React.FC = () => {
       {/* MAIN CONTAINER: Left Sidebar + Page Workspace             */}
       {/* ========================================================= */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Desktop Sidebar: Deep Temple Red Gradient with Ghat Silhouette */}
+        {/* Desktop Sidebar: Deep Temple Red Gradient (Visible on lg: >=1024px) */}
         <aside
-          className={`hidden md:flex flex-col bg-gradient-to-b from-[#8F2D16] via-[#7B2411] to-[#631B0A] text-white transition-all duration-200 z-20 shrink-0 shadow-lg relative ${
+          className={`hidden lg:flex flex-col bg-gradient-to-b from-[#8F2D16] via-[#7B2411] to-[#631B0A] text-white transition-all duration-200 z-20 shrink-0 shadow-lg relative ${
             collapsed ? 'w-[72px]' : 'w-[230px]'
           }`}
         >
@@ -300,7 +311,6 @@ export const AppLayout: React.FC = () => {
               const isExpanded = expandedGroups[group.id];
 
               if (!hasSubItems || collapsed) {
-                // Direct nav item without sub-items or when sidebar is collapsed
                 return (
                   <NavLink
                     key={group.id}
@@ -408,8 +418,8 @@ export const AppLayout: React.FC = () => {
                 <button
                   onClick={handleLogout}
                   className="p-1.5 text-white/70 hover:text-white hover:bg-white/15 rounded-md transition-colors"
-                  title="Sign out"
-                  aria-label="Sign out"
+                  title={t('nav.signOut')}
+                  aria-label={t('nav.signOut')}
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -418,28 +428,55 @@ export const AppLayout: React.FC = () => {
           </div>
         </aside>
 
-        {/* Mobile Navigation Drawer */}
+        {/* Mobile Navigation Drawer: active on <1024px screens */}
         {mobileMenuOpen && (
-          <div className="fixed inset-0 z-50 flex md:hidden">
+          <div className="fixed inset-0 z-50 flex lg:hidden">
+            {/* Backdrop Blur */}
             <div
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
               onClick={() => setMobileMenuOpen(false)}
             />
-            <div className="relative w-72 bg-gradient-to-b from-[#8F2D16] to-[#631B0A] text-white h-full flex flex-col shadow-2xl z-10">
-              <div className="h-16 flex items-center px-4 border-b border-white/10 justify-between">
+
+            {/* Sliding Panel */}
+            <div className="relative w-80 max-w-[85vw] bg-gradient-to-b from-[#8F2D16] to-[#631B0A] text-white h-full flex flex-col shadow-2xl z-10 animate-in slide-in-from-left duration-200">
+              {/* Drawer Header */}
+              <div className="h-16 flex items-center px-4 border-b border-white/10 justify-between shrink-0">
                 <div className="flex items-center gap-2.5">
                   <CivicProofLotusLogo className="w-8 h-8" />
-                  <span className="font-bold text-white text-base">CivicProof®</span>
+                  <div className="flex flex-col">
+                    <span className="font-bold text-white text-sm leading-tight">CivicProof®</span>
+                    <span className="text-[10px] text-[#FCE4CB] uppercase tracking-wider">Pushkaralu 2027</span>
+                  </div>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10"
+                  className="p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10"
+                  aria-label="Close navigation menu"
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+              {/* Quick Language & Role Switcher Bar inside Mobile Drawer */}
+              <div className="p-3 bg-black/20 border-b border-white/10 flex items-center justify-between gap-2">
+                <div className="flex-1">
+                  <LanguageSelector className="w-full" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setRoleSwitcherOpen(true);
+                  }}
+                  className="px-2.5 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-xs font-semibold flex items-center gap-1.5"
+                >
+                  <ArrowRightLeft className="w-3.5 h-3.5 text-[#F4B942]" />
+                  <span>{t('nav.switchRole')}</span>
+                </button>
+              </div>
+
+              {/* Mobile Nav Links */}
+              <nav className="flex-1 py-3 px-3 space-y-1 overflow-y-auto">
                 {visibleGroups.map((group) => {
                   const Icon = group.icon;
                   const hasSubItems = group.items && group.items.length > 0;
@@ -452,9 +489,9 @@ export const AppLayout: React.FC = () => {
                         to={group.path || '#'}
                         onClick={() => setMobileMenuOpen(false)}
                         className={({ isActive }) =>
-                          `flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium ${
+                          `flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium ${
                             isActive
-                              ? 'bg-[#E87512] text-white font-semibold'
+                              ? 'bg-[#E87512] text-white font-semibold shadow-md'
                               : 'text-[#F5E6DD] hover:bg-white/10'
                           }`
                         }
@@ -464,7 +501,7 @@ export const AppLayout: React.FC = () => {
                           <span>{group.name}</span>
                         </div>
                         {group.badge && (
-                          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[#F4B942] text-[#35251E]">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F4B942] text-[#35251E]">
                             {group.badge}
                           </span>
                         )}
@@ -476,7 +513,7 @@ export const AppLayout: React.FC = () => {
                     <div key={group.id} className="space-y-1">
                       <button
                         onClick={() => toggleGroup(group.id)}
-                        className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-[#F5E6DD] hover:bg-white/10"
+                        className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-[#F5E6DD] hover:bg-white/10"
                       >
                         <div className="flex items-center gap-3">
                           <Icon className="w-4 h-4" />
@@ -488,17 +525,17 @@ export const AppLayout: React.FC = () => {
                       </button>
 
                       {isExpanded && (
-                        <div className="pl-8 space-y-1">
+                        <div className="pl-8 space-y-1 py-1">
                           {group.items?.map((sub) => (
                             <NavLink
                               key={sub.path}
                               to={sub.path}
                               onClick={() => setMobileMenuOpen(false)}
                               className={({ isActive }) =>
-                                `block px-3 py-2 rounded-lg text-xs ${
+                                `block px-3 py-2 rounded-lg text-xs font-medium ${
                                   isActive
                                     ? 'bg-[#E87512] text-white font-bold'
-                                    : 'text-[#F0D5C7] hover:bg-white/10 font-medium'
+                                    : 'text-[#F0D5C7] hover:bg-white/10'
                                 }`
                               }
                             >
@@ -512,20 +549,21 @@ export const AppLayout: React.FC = () => {
                 })}
               </nav>
 
-              <div className="p-4 border-t border-white/10 flex items-center justify-between bg-black/20">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-white/20 text-white font-bold text-xs flex items-center justify-center">
+              {/* Mobile Drawer Footer with User Signout */}
+              <div className="p-4 border-t border-white/10 flex items-center justify-between bg-black/30 shrink-0">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-white/20 text-white font-bold text-xs flex items-center justify-center shrink-0">
                     {user?.full_name?.charAt(0) || 'A'}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs font-semibold text-white truncate">{user?.full_name}</p>
-                    <p className="text-[10px] text-[#FCE4CB]">{primaryRole}</p>
+                    <p className="text-[10px] text-[#FCE4CB] truncate">{primaryRole}</p>
                   </div>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="p-1.5 text-white/80 hover:text-white"
-                  title="Sign out"
+                  className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                  title={t('nav.signOut')}
                 >
                   <LogOut className="w-5 h-5" />
                 </button>
@@ -537,36 +575,36 @@ export const AppLayout: React.FC = () => {
         {/* Content Workspace */}
         <main className="flex-1 flex flex-col overflow-y-auto bg-[#FFF8EE]">
           {/* Breadcrumb Header Bar */}
-          <div className="px-4 sm:px-8 py-2.5 bg-[#FAF4EC]/80 border-b border-[#E9DED2] flex items-center justify-between text-xs text-textSecondary shrink-0">
-            <div className="flex items-center gap-2 font-medium">
+          <div className="px-3 sm:px-8 py-2.5 bg-[#FAF4EC]/80 border-b border-[#E9DED2] flex items-center justify-between text-xs text-textSecondary shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 font-medium truncate">
               <span className="text-textSecondary">CivicProof</span>
               <span>&gt;</span>
-              <span className="text-[#8F2D16] font-semibold">
+              <span className="text-[#8F2D16] font-semibold truncate">
                 {location.pathname === '/dashboard'
-                  ? 'Executive Overview'
+                  ? t('nav.executiveOverview')
                   : location.pathname.slice(1).replace('-', ' ').toUpperCase()}
               </span>
             </div>
 
-            <div className="flex items-center gap-2 text-[11px] text-textSecondary">
+            <div className="hidden sm:flex items-center gap-2 text-[11px] text-textSecondary shrink-0">
               <span className="inline-block w-2 h-2 rounded-full bg-[#15803D] animate-pulse"></span>
-              <span>Live Database Connection</span>
+              <span>{t('header.liveDb')}</span>
             </div>
           </div>
 
-          {/* Routed Page Container */}
-          <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+          {/* Routed Page Container: Optimized with responsive padding */}
+          <div className="flex-1 p-3 sm:p-5 lg:p-8 max-w-7xl mx-auto w-full">
             <Outlet />
           </div>
         </main>
       </div>
 
-      {/* Role Switcher Modal (Allows testing all 7 government roles instantly) */}
+      {/* Role Switcher Modal */}
       <Modal
         isOpen={roleSwitcherOpen}
         onClose={() => setRoleSwitcherOpen(false)}
-        title="Switch Official Role"
-        description="Select a role profile to experience role-based home dashboards and permission boundaries."
+        title={t('header.roleSwitcherTitle')}
+        description={t('header.roleSwitcherDesc')}
         maxWidth="lg"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -588,7 +626,7 @@ export const AppLayout: React.FC = () => {
               >
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="font-bold text-xs text-textPrimary">{acc.name}</span>
-                  {isCurrent && <Badge variant="brand" size="sm">Active</Badge>}
+                  {isCurrent && <Badge variant="brand" size="sm">{t('nav.activeRole')}</Badge>}
                 </div>
                 <p className="text-xs font-semibold text-[#8F2D16] mb-1">{acc.roleName}</p>
                 <p className="text-[11px] text-textSecondary leading-snug">{acc.description}</p>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   HardHat,
   Cog,
@@ -35,6 +36,7 @@ import type { VendorDashboardData } from '../../types/vendor';
 import pushkaraluHeroBanner from '../../assets/pushkaralu-hero-banner.jpg';
 
 export const DashboardPage: React.FC = () => {
+  const { t } = useTranslation();
   const { user, hasRole } = useAuth();
   const navigate = useNavigate();
 
@@ -521,11 +523,11 @@ export const DashboardPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-[#E87512]" />
             <span className="text-xs font-bold text-textPrimary uppercase tracking-wider">
-              Jurisdiction &amp; Filters
+              {t('common.filter')} &amp; Jurisdiction
             </span>
             {loading && (
               <span className="text-[10px] text-[#8F2D16] font-medium animate-pulse ml-2">
-                &bull; Refreshing data...
+                &bull; {t('common.loading')}
               </span>
             )}
           </div>
@@ -535,7 +537,7 @@ export const DashboardPage: React.FC = () => {
               className="text-xs text-[#8F2D16] hover:text-[#73200E] flex items-center gap-1 font-semibold transition-colors"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset Filters</span>
+              <span>{t('dashboard.resetFilters')}</span>
             </button>
           )}
         </div>
@@ -543,13 +545,13 @@ export const DashboardPage: React.FC = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-2.5">
           {/* Project */}
           <div>
-            <label className="block text-[10px] font-semibold text-textSecondary uppercase mb-1">Project</label>
+            <label className="block text-[10px] font-semibold text-textSecondary uppercase mb-1">{t('dashboard.filterByProject')}</label>
             <select
               value={filters.project_id}
               onChange={(e) => setFilters({ ...filters, project_id: e.target.value })}
               className="w-full px-2.5 py-1.5 text-xs bg-[#FFFDF9] border border-[#E9DED2] rounded-lg text-textPrimary focus:ring-1 focus:ring-[#8F2D16] focus:border-[#8F2D16] truncate"
             >
-              <option value="">All Projects</option>
+              <option value="">{t('nav.allProjects')}</option>
               {filterOptions?.projects.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
@@ -558,13 +560,13 @@ export const DashboardPage: React.FC = () => {
 
           {/* Ghat / Zone */}
           <div>
-            <label className="block text-[10px] font-semibold text-textSecondary uppercase mb-1">Ghat / Zone</label>
+            <label className="block text-[10px] font-semibold text-textSecondary uppercase mb-1">{t('dashboard.filterByZone')}</label>
             <select
               value={filters.zone_id}
               onChange={(e) => setFilters({ ...filters, zone_id: e.target.value })}
               className="w-full px-2.5 py-1.5 text-xs bg-[#FFFDF9] border border-[#E9DED2] rounded-lg text-textPrimary focus:ring-1 focus:ring-[#8F2D16] focus:border-[#8F2D16] truncate"
             >
-              <option value="">All Ghats &amp; Zones</option>
+              <option value="">{t('dashboard.allZones')}</option>
               {filterOptions?.zones.map((z) => (
                 <option key={z.id} value={z.id}>{z.name}</option>
               ))}
@@ -573,13 +575,13 @@ export const DashboardPage: React.FC = () => {
 
           {/* Work Category */}
           <div>
-            <label className="block text-[10px] font-semibold text-textSecondary uppercase mb-1">Work Category</label>
+            <label className="block text-[10px] font-semibold text-textSecondary uppercase mb-1">{t('dashboard.filterByCategory')}</label>
             <select
               value={filters.category}
               onChange={(e) => setFilters({ ...filters, category: e.target.value })}
               className="w-full px-2.5 py-1.5 text-xs bg-[#FFFDF9] border border-[#E9DED2] rounded-lg text-textPrimary focus:ring-1 focus:ring-[#8F2D16] focus:border-[#8F2D16] truncate"
             >
-              <option value="">All Categories</option>
+              <option value="">{t('dashboard.allCategories')}</option>
               {filterOptions?.categories.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -588,13 +590,13 @@ export const DashboardPage: React.FC = () => {
 
           {/* Vendor */}
           <div>
-            <label className="block text-[10px] font-semibold text-textSecondary uppercase mb-1">Vendor</label>
+            <label className="block text-[10px] font-semibold text-textSecondary uppercase mb-1">{t('dashboard.filterByVendor')}</label>
             <select
               value={filters.vendor_id}
               onChange={(e) => setFilters({ ...filters, vendor_id: e.target.value })}
               className="w-full px-2.5 py-1.5 text-xs bg-[#FFFDF9] border border-[#E9DED2] rounded-lg text-textPrimary focus:ring-1 focus:ring-[#8F2D16] focus:border-[#8F2D16] truncate"
             >
-              <option value="">All Vendors</option>
+              <option value="">{t('dashboard.allVendors')}</option>
               {filterOptions?.vendors.map((v) => (
                 <option key={v.id} value={v.id}>{v.name}</option>
               ))}
@@ -603,13 +605,13 @@ export const DashboardPage: React.FC = () => {
 
           {/* Workflow State */}
           <div>
-            <label className="block text-[10px] font-semibold text-textSecondary uppercase mb-1">Workflow State</label>
+            <label className="block text-[10px] font-semibold text-textSecondary uppercase mb-1">{t('dashboard.filterByStatus')}</label>
             <select
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value })}
               className="w-full px-2.5 py-1.5 text-xs bg-[#FFFDF9] border border-[#E9DED2] rounded-lg text-textPrimary focus:ring-1 focus:ring-[#8F2D16] focus:border-[#8F2D16] truncate"
             >
-              <option value="">All States</option>
+              <option value="">{t('dashboard.allStatuses')}</option>
               {filterOptions?.statuses.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
@@ -640,7 +642,7 @@ export const DashboardPage: React.FC = () => {
             <div className="w-8 h-8 rounded-full bg-[#FEF3E8] border border-[#FCE4CB] flex items-center justify-center shrink-0">
               <HardHat className="w-4 h-4 text-[#E87512]" />
             </div>
-            <span className="text-[11px] font-bold text-textSecondary">Total Projects</span>
+            <span className="text-[11px] font-bold text-textSecondary">{t('dashboard.totalProjects')}</span>
           </div>
           <p className="text-2xl font-extrabold text-textPrimary tracking-tight pl-1">
             {metrics?.total_projects ?? 8}
@@ -657,7 +659,7 @@ export const DashboardPage: React.FC = () => {
             <div className="w-8 h-8 rounded-full bg-[#FEF3E8] border border-[#FCE4CB] flex items-center justify-center shrink-0">
               <Cog className="w-4 h-4 text-[#E87512]" />
             </div>
-            <span className="text-[11px] font-bold text-textSecondary">Active Works</span>
+            <span className="text-[11px] font-bold text-textSecondary">{t('common.inProgress')}</span>
           </div>
           <p className="text-2xl font-extrabold text-textPrimary tracking-tight pl-1">
             {metrics?.active_works ?? 4}
@@ -674,7 +676,7 @@ export const DashboardPage: React.FC = () => {
             <div className="w-8 h-8 rounded-full bg-[#FEF2F2] border border-[#FECACA] flex items-center justify-center shrink-0">
               <Flag className="w-4 h-4 text-[#B91C1C]" />
             </div>
-            <span className="text-[11px] font-bold text-[#8F2D16]">Reported Complete</span>
+            <span className="text-[11px] font-bold text-[#8F2D16]">{t('common.pending')}</span>
           </div>
           <p className="text-2xl font-extrabold text-[#8F2D16] tracking-tight pl-1">
             {metrics?.reported_complete_works ?? 2}
@@ -691,7 +693,7 @@ export const DashboardPage: React.FC = () => {
             <div className="w-8 h-8 rounded-full bg-[#F0FDF4] border border-[#BBF7D0] flex items-center justify-center shrink-0">
               <ShieldCheck className="w-4 h-4 text-[#15803D]" />
             </div>
-            <span className="text-[11px] font-bold text-[#15803D]">Verified Complete</span>
+            <span className="text-[11px] font-bold text-[#15803D]">{t('common.verified')}</span>
           </div>
           <p className="text-2xl font-extrabold text-[#15803D] tracking-tight pl-1">
             {metrics?.verified_complete_works ?? 1}
@@ -708,7 +710,7 @@ export const DashboardPage: React.FC = () => {
             <div className="w-8 h-8 rounded-full bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center shrink-0">
               <Award className="w-4 h-4 text-[#B45309]" />
             </div>
-            <span className="text-[11px] font-bold text-[#B45309]">Accepted Works</span>
+            <span className="text-[11px] font-bold text-[#B45309]">{t('dashboard.statusOnTrack')}</span>
           </div>
           <p className="text-2xl font-extrabold text-[#B45309] tracking-tight pl-1">
             {metrics?.accepted_works ?? 1}
@@ -725,7 +727,7 @@ export const DashboardPage: React.FC = () => {
             <div className="w-8 h-8 rounded-full bg-[#FEF2F2] border border-[#FECACA] flex items-center justify-center shrink-0">
               <AlertTriangle className="w-4 h-4 text-[#B91C1C]" />
             </div>
-            <span className="text-[11px] font-bold text-[#B91C1C]">Works at Risk</span>
+            <span className="text-[11px] font-bold text-[#B91C1C]">{t('dashboard.statusCritical')}</span>
           </div>
           <p className="text-2xl font-extrabold text-[#B91C1C] tracking-tight pl-1">
             {metrics?.works_at_risk ?? 3}

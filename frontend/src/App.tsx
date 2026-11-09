@@ -27,7 +27,6 @@ const AssetDetailPage = lazy(() => import('./features/assets/AssetDetailPage').t
 const ReadinessDashboardPage = lazy(() => import('./features/readiness/ReadinessDashboardPage').then(m => ({ default: m.ReadinessDashboardPage })));
 const DependencyGraphPage = lazy(() => import('./features/dependencies/DependencyGraphPage').then(m => ({ default: m.DependencyGraphPage })));
 const MapPage = lazy(() => import('./features/map/MapPage').then(m => ({ default: m.MapPage })));
-const OfflineFieldPage = lazy(() => import('./features/offline/OfflineFieldPage').then(m => ({ default: m.OfflineFieldPage })));
 const ReportsPage = lazy(() => import('./features/reports/ReportsPage').then(m => ({ default: m.ReportsPage })));
 const NotificationCenterPage = lazy(() => import('./features/notifications/NotificationCenterPage').then(m => ({ default: m.NotificationCenterPage })));
 const MyTasksPage = lazy(() => import('./features/tasks/MyTasksPage').then(m => ({ default: m.MyTasksPage })));
@@ -130,8 +129,8 @@ export const App: React.FC = () => {
                   {/* Module 10 Geographic Map & Zone Monitoring */}
                   <Route path="/map" element={<MapPage />} />
 
-                  {/* Module 11 Offline-First Field Workflows */}
-                  <Route path="/offline" element={<OfflineFieldPage />} />
+                  {/* Retired Offline Sync -> Redirect to Inspections */}
+                  <Route path="/offline" element={<Navigate to="/inspections" replace />} />
 
                   {/* Module 12 Reports, Exports, & Audit History */}
                   <Route path="/reports" element={<ReportsPage />} />

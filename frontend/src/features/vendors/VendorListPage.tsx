@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Building2,
   Search,
@@ -23,6 +24,7 @@ import { Modal } from '../../components/ui/Modal';
 import { useAuth } from '../../context/AuthContext';
 
 export const VendorListPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -124,12 +126,12 @@ export const VendorListPage: React.FC = () => {
             </span>
             <span className="text-xs text-slate-500 font-medium">Pushkaralu 2027 Execution</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight mt-1 flex items-center gap-2">
-            <Building2 className="w-7 h-7 text-brand" />
-            Contractor & Service-Provider Directory
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-1 flex items-center gap-2">
+            <Building2 className="w-6 h-6 sm:w-7 sm:h-7 text-brand" />
+            {t('vendors.title')}
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Registered infrastructure vendors, statutory compliance status, and assigned public work packages.
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            {t('vendors.subtitle')}
           </p>
         </div>
 
@@ -191,7 +193,7 @@ export const VendorListPage: React.FC = () => {
           <input
             id="vendor-search-input"
             type="text"
-            placeholder="Search by contractor name, code, contact person, or contract reference..."
+            placeholder={t('vendors.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
@@ -249,19 +251,67 @@ export const VendorListPage: React.FC = () => {
             <p className="text-xs text-slate-400 mt-1">Try clearing your search query or filters.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 border-b border-slate-200/80 text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                <tr>
-                  <th className="py-3 px-4">Contractor & Code</th>
-                  <th className="py-3 px-4">Category</th>
-                  <th className="py-3 px-4">Primary Contact</th>
-                  <th className="py-3 px-4">Contract Ref & Validity</th>
-                  <th className="py-3 px-4">Compliance Status</th>
-                  <th className="py-3 px-4 text-center">Assigned Works</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
+          <>
+            {/* Mobile Card View for <md */}
+            <div className="md:hidden divide-y divide-slate-100">
+              {vendors.map((vendor) => (
+                <div
+                  key={vendor.id}
+                  onClick={() => navigate(`/vendors/${vendor.id}`)}
+                  className="p-4 space-y-2.5 active:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-bold text-xs text-brand">{vendor.vendor_code}</span>
+                    {vendor.compliance_status === 'Compliant' && (
+                      <Badge variant="success" size="sm" icon={<ShieldCheck className="w-3 h-3" />}>
+                        Compliant
+                      </Badge>
+                    )}
+                    {vendor.compliance_status === 'Renewal Due' && (
+                      <Badge variant="warning" size="sm" icon={<AlertTriangle className="w-3 h-3" />}>
+                        Renewal Due
+                      </Badge>
+                    )}
+                    {vendor.compliance_status === 'Suspended' && (
+                      <Badge variant="error" size="sm">
+                        Suspended
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-sm text-slate-900 leading-snug">{vendor.company_name}</h4>
+                    <span className="text-xs text-slate-500 font-medium">{vendor.category}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase font-semibold">Contact</span>
+                      <span className="font-medium text-slate-800">{vendor.contact_name}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] text-slate-400 block uppercase font-semibold">Works</span>
+                      <span className="font-bold text-brand">{vendor.assigned_packages_count} packages</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View for >=md */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-50 border-b border-slate-200/80 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  <tr>
+                    <th className="py-3 px-4">Contractor & Code</th>
+                    <th className="py-3 px-4">Category</th>
+                    <th className="py-3 px-4">Primary Contact</th>
+                    <th className="py-3 px-4">Contract Ref & Validity</th>
+                    <th className="py-3 px-4">Compliance Status</th>
+                    <th className="py-3 px-4 text-center">Assigned Works</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
               <tbody className="divide-y divide-slate-100">
                 {vendors.map((vendor) => (
                   <tr
@@ -373,7 +423,8 @@ export const VendorListPage: React.FC = () => {
               </tbody>
             </table>
           </div>
-        )}
+        </>
+      )}
       </div>
 
       {/* Register Contractor Modal */}

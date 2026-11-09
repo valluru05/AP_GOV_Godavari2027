@@ -201,9 +201,19 @@ class AssetService:
         """
         Opaque QR lookup ensuring authenticated resolution without exposing raw database IDs in physical tags.
         """
+        clean_identifier = qr_identifier.strip()
+        if "/qr/" in clean_identifier:
+            clean_identifier = clean_identifier.split("/qr/")[-1].split("?")[0].split("/")[0]
+        elif "/assets/" in clean_identifier:
+            clean_identifier = clean_identifier.split("/assets/")[-1].split("?")[0].split("/")[0]
+
         asset = (
             db.query(Asset)
-            .filter((Asset.qr_identifier == qr_identifier) | (Asset.asset_code == qr_identifier))
+            .filter(
+                (Asset.qr_identifier == clean_identifier)
+                | (Asset.asset_code == clean_identifier)
+                | (Asset.id == clean_identifier)
+            )
             .first()
         )
         if not asset:

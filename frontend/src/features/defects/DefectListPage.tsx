@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   AlertTriangle,
   Search,
@@ -26,6 +27,7 @@ import { Modal } from '../../components/ui/Modal';
 import { useAuth } from '../../context/AuthContext';
 
 export const DefectListPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { hasPermission, hasRole } = useAuth();
 
@@ -229,15 +231,15 @@ export const DefectListPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-              Defects, Corrective Action, & Rework
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              {t('defects.title')}
             </h1>
             <span className="bg-amber-100 text-amber-900 text-xs px-2.5 py-0.5 rounded-full font-medium">
               Module 6
             </span>
           </div>
-          <p className="text-sm text-slate-500 mt-1">
-            End-to-end non-conformance lifecycle, contractor rectification submissions, and independent quality re-inspection.
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            {t('defects.subtitle')}
           </p>
         </div>
         {canCreateDefect && (
@@ -246,7 +248,7 @@ export const DefectListPage: React.FC = () => {
             className="flex items-center gap-2 bg-[#174EA6] hover:bg-[#123e85] text-white shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            Log New Defect
+            {t('defects.reportDefect')}
           </Button>
         )}
       </div>
@@ -345,7 +347,7 @@ export const DefectListPage: React.FC = () => {
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by defect ID (e.g. DEF-DW-001), title, work package, or contractor..."
+              placeholder={t('defects.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -423,20 +425,64 @@ export const DefectListPage: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-600">
-              <thead className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                <tr>
-                  <th className="px-4 py-3">Defect ID & Severity</th>
-                  <th className="px-4 py-3">Title & Category</th>
-                  <th className="px-4 py-3">Work Package & Ghat</th>
-                  <th className="px-4 py-3">Responsible Vendor</th>
-                  <th className="px-4 py-3">Lifecycle Status</th>
-                  <th className="px-4 py-3">Target Date</th>
-                  <th className="px-4 py-3">Rework Cycles</th>
-                  <th className="px-4 py-3 text-right">Action</th>
-                </tr>
-              </thead>
+          <>
+            {/* Mobile Card Layout for <md */}
+            <div className="md:hidden divide-y divide-slate-100">
+              {defects.map((d) => (
+                <div
+                  key={d.id}
+                  onClick={() => navigate(`/defects/${d.id}`)}
+                  className="p-4 space-y-2.5 active:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-bold text-xs text-slate-900">{d.defect_id}</span>
+                      {getSeverityBadge(d.severity)}
+                    </div>
+                    {getStatusBadge(d.status)}
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-sm text-slate-900 leading-snug">{d.title}</h4>
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
+                      <MapPin className="w-3.5 h-3.5 text-[#E87512] shrink-0" />
+                      <span>{d.zone_name || 'Pushkaralu Sector'}</span>
+                      <span>•</span>
+                      <span className="truncate">{d.work_package_title}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                    <div className="truncate">
+                      <span className="text-[10px] text-slate-400 block uppercase font-semibold">Vendor</span>
+                      <span className="font-medium text-slate-800 truncate">{d.assigned_vendor_name || 'Unassigned'}</span>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <span className="text-[10px] text-slate-400 block uppercase font-semibold">Deadline</span>
+                      <span className={d.is_overdue ? 'font-bold text-rose-600' : 'font-medium text-slate-700'}>
+                        {d.target_resolution_date || 'No deadline'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View for >=md */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-sm text-slate-600">
+                <thead className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  <tr>
+                    <th className="px-4 py-3">Defect ID & Severity</th>
+                    <th className="px-4 py-3">Title & Category</th>
+                    <th className="px-4 py-3">Work Package & Ghat</th>
+                    <th className="px-4 py-3">Responsible Vendor</th>
+                    <th className="px-4 py-3">Lifecycle Status</th>
+                    <th className="px-4 py-3">Target Date</th>
+                    <th className="px-4 py-3">Rework Cycles</th>
+                    <th className="px-4 py-3 text-right">Action</th>
+                  </tr>
+                </thead>
               <tbody className="divide-y divide-slate-100">
                 {defects.map((d) => (
                   <tr
@@ -529,7 +575,8 @@ export const DefectListPage: React.FC = () => {
               </tbody>
             </table>
           </div>
-        )}
+        </>
+      )}
       </div>
 
       {/* Log Defect Modal */}

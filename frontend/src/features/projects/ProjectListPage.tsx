@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   FolderGit2,
   Plus,
@@ -19,6 +20,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 
 export const ProjectListPage: React.FC = () => {
+  const { t } = useTranslation();
   const { hasPermission } = useAuth();
   const navigate = useNavigate();
 
@@ -149,28 +151,28 @@ export const ProjectListPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="bg-surface p-6 rounded-xl border border-borderLight shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-surface p-4 sm:p-6 rounded-xl border border-borderLight shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <div className="p-2 bg-brand-light text-brand rounded-lg">
               <FolderGit2 className="w-5 h-5" />
             </div>
-            <h1 className="text-xl font-bold text-textPrimary tracking-tight">
-              Project & Work Register
+            <h1 className="text-lg sm:text-xl font-bold text-textPrimary tracking-tight">
+              {t('projects.title')}
             </h1>
           </div>
           <p className="text-xs text-textSecondary mt-1">
-            Godavari Pushkaralu 2027 priority infrastructure works, ghat sectors, and engineering milestones.
+            {t('projects.subtitle')}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button
             variant="outline"
             size="sm"
             icon={<Download className="w-4 h-4" />}
             onClick={handleExportCsv}
           >
-            Export CSV
+            {t('reports.exportCsv')}
           </Button>
           {canCreate && (
             <Button
@@ -179,19 +181,19 @@ export const ProjectListPage: React.FC = () => {
               icon={<Plus className="w-4 h-4" />}
               onClick={() => setCreateModalOpen(true)}
             >
-              New Project
+              {t('projects.newProject')}
             </Button>
           )}
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-surface p-4 rounded-xl border border-borderLight shadow-subtle flex flex-col md:flex-row gap-3 items-center justify-between">
+      <div className="bg-surface p-3.5 sm:p-4 rounded-xl border border-borderLight shadow-subtle flex flex-col md:flex-row gap-3 items-center justify-between">
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 text-textSecondary absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Search projects by name, code, description..."
+            placeholder={t('projects.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 text-xs bg-[#FFFDF9] border border-borderLight rounded-lg text-textPrimary focus:ring-1 focus:ring-brand focus:border-brand"
@@ -271,36 +273,93 @@ export const ProjectListPage: React.FC = () => {
             <p className="mt-1">Try adjusting your filters or search keywords.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-[#FAF4EC] border-b border-borderLight text-textSecondary font-semibold">
-                  <th
-                    onClick={() => handleSort('identifier')}
-                    className="py-3 px-4 cursor-pointer hover:text-textPrimary"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Project Code</span>
-                      <ArrowUpDown className="w-3 h-3" />
+          <>
+            {/* Mobile Stacked Card View (Visible on <md) */}
+            <div className="md:hidden divide-y divide-borderLight/60">
+              {sortedProjects.map((p) => (
+                <div
+                  key={p.id}
+                  onClick={() => navigate(`/projects/${p.id}`)}
+                  className="p-4 space-y-2.5 active:bg-[#FAF4EC] transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-bold text-xs text-brand">{p.project_identifier}</span>
+                    <Badge
+                      variant={
+                        p.current_status === 'Accepted'
+                          ? 'success'
+                          : p.current_status === 'Delayed'
+                          ? 'error'
+                          : 'brand'
+                      }
+                      size="sm"
+                    >
+                      {p.current_status}
+                    </Badge>
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-sm text-textPrimary leading-snug">{p.name}</h4>
+                    <p className="text-[11px] text-textSecondary line-clamp-2 mt-0.5">{p.description || p.category}</p>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-textSecondary pt-1">
+                    <span className="flex items-center gap-1 font-medium">
+                      <MapPin className="w-3.5 h-3.5 text-[#E87512]" />
+                      {p.zone_name || 'Unassigned'}
+                    </span>
+                    <span className="font-mono text-[11px] bg-slate-100 px-2 py-0.5 rounded font-semibold text-slate-700">
+                      {p.work_packages_count} packages
+                    </span>
+                  </div>
+
+                  <div className="space-y-1 pt-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-textSecondary">Verified Progress</span>
+                      <span className="font-bold text-emerald-700">{p.verified_progress_avg}%</span>
                     </div>
-                  </th>
-                  <th
-                    onClick={() => handleSort('name')}
-                    className="py-3 px-4 cursor-pointer hover:text-textPrimary"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Scheme & Description</span>
-                      <ArrowUpDown className="w-3 h-3" />
+                    <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden flex">
+                      <div
+                        className="bg-emerald-600 h-2"
+                        style={{ width: `${p.verified_progress_avg}%` }}
+                      />
                     </div>
-                  </th>
-                  <th className="py-3 px-4">Ghat / Zone</th>
-                  <th className="py-3 px-4">Work Packages</th>
-                  <th className="py-3 px-4">Reported vs. Verified</th>
-                  <th className="py-3 px-4">Priority & Status</th>
-                  <th className="py-3 px-4">Target Date</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View (Visible on >=md) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-[#FAF4EC] border-b border-borderLight text-textSecondary font-semibold">
+                    <th
+                      onClick={() => handleSort('identifier')}
+                      className="py-3 px-4 cursor-pointer hover:text-textPrimary"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span>Project Code</span>
+                        <ArrowUpDown className="w-3 h-3" />
+                      </div>
+                    </th>
+                    <th
+                      onClick={() => handleSort('name')}
+                      className="py-3 px-4 cursor-pointer hover:text-textPrimary"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span>Scheme & Description</span>
+                        <ArrowUpDown className="w-3 h-3" />
+                      </div>
+                    </th>
+                    <th className="py-3 px-4">Ghat / Zone</th>
+                    <th className="py-3 px-4">Work Packages</th>
+                    <th className="py-3 px-4">Reported vs. Verified</th>
+                    <th className="py-3 px-4">Priority & Status</th>
+                    <th className="py-3 px-4">Target Date</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
               <tbody className="divide-y divide-borderLight/60">
                 {sortedProjects.map((p) => {
                   return (
@@ -401,7 +460,8 @@ export const ProjectListPage: React.FC = () => {
               </tbody>
             </table>
           </div>
-        )}
+        </>
+      )}
       </div>
 
       {/* Create New Project Modal */}

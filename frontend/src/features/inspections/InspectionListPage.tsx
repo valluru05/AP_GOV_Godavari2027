@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   ClipboardCheck,
   Search,
@@ -24,6 +25,7 @@ import { Modal } from '../../components/ui/Modal';
 import { useAuth } from '../../context/AuthContext';
 
 export const InspectionListPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { hasPermission, hasRole } = useAuth();
 
@@ -161,15 +163,15 @@ export const InspectionListPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-              Field Verification & Mobile Inspections
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              {t('inspections.title')}
             </h1>
             <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full font-medium">
               Module 5
             </span>
           </div>
-          <p className="text-sm text-slate-500 mt-1">
-            Authoritative ground-truth engineering verification and quality certification registry for Godavari Pushkaralu 2027 infrastructure.
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            {t('inspections.subtitle')}
           </p>
         </div>
         {canSchedule && (
@@ -178,7 +180,7 @@ export const InspectionListPage: React.FC = () => {
             className="flex items-center gap-2 bg-[#174EA6] hover:bg-[#123e85] text-white shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            Schedule Inspection
+            {t('inspections.newInspection')}
           </Button>
         )}
       </div>
@@ -283,7 +285,7 @@ export const InspectionListPage: React.FC = () => {
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by inspection code (e.g. DW01), package title, ghat sector, or inspector..."
+              placeholder={t('inspections.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -360,20 +362,67 @@ export const InspectionListPage: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-600">
-              <thead className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                <tr>
-                  <th className="px-4 py-3">Inspection Code</th>
-                  <th className="px-4 py-3">Work Package & Ghat</th>
-                  <th className="px-4 py-3">Type & Version</th>
-                  <th className="px-4 py-3">Geofence Status</th>
-                  <th className="px-4 py-3">Verdict / Outcome</th>
-                  <th className="px-4 py-3">Verified vs Reported</th>
-                  <th className="px-4 py-3">Inspector & Date</th>
-                  <th className="px-4 py-3 text-right">Action</th>
-                </tr>
-              </thead>
+          <>
+            {/* Mobile Card Layout for <md */}
+            <div className="md:hidden divide-y divide-slate-100">
+              {inspections.map((insp) => (
+                <div
+                  key={insp.id}
+                  onClick={() => navigate(`/inspections/${insp.id}`)}
+                  className="p-4 space-y-2.5 active:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-bold text-xs text-blue-900">{insp.inspection_id}</span>
+                    {getOutcomeBadge(insp.outcome)}
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-sm text-slate-900 leading-snug">
+                      {insp.work_package_title || 'Work Package'}
+                    </h4>
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
+                      <MapPin className="w-3.5 h-3.5 text-[#E87512] shrink-0" />
+                      <span>{insp.zone_name || 'Pushkaralu Sector'}</span>
+                      <span className="text-slate-300">•</span>
+                      <span className="font-mono text-slate-500">{insp.work_id}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase font-semibold">Inspector</span>
+                      <span className="font-medium text-slate-900">{insp.inspector_name}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] text-slate-400 block uppercase font-semibold">Verified Award</span>
+                      <span className="font-bold text-emerald-700">
+                        {insp.verified_percentage_awarded !== null && insp.verified_percentage_awarded !== undefined
+                          ? `${insp.verified_percentage_awarded}%`
+                          : insp.outcome === 'Failed'
+                          ? '0.0%'
+                          : 'Pending'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View for >=md */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-sm text-slate-600">
+                <thead className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  <tr>
+                    <th className="px-4 py-3">Inspection Code</th>
+                    <th className="px-4 py-3">Work Package & Ghat</th>
+                    <th className="px-4 py-3">Type & Version</th>
+                    <th className="px-4 py-3">Geofence Status</th>
+                    <th className="px-4 py-3">Verdict / Outcome</th>
+                    <th className="px-4 py-3">Verified vs Reported</th>
+                    <th className="px-4 py-3">Inspector & Date</th>
+                    <th className="px-4 py-3 text-right">Action</th>
+                  </tr>
+                </thead>
               <tbody className="divide-y divide-slate-100">
                 {inspections.map((insp) => (
                   <tr
@@ -488,7 +537,8 @@ export const InspectionListPage: React.FC = () => {
               </tbody>
             </table>
           </div>
-        )}
+        </>
+      )}
       </div>
 
       {/* Schedule Inspection Modal */}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   PackageCheck,
   Search,
@@ -42,7 +43,9 @@ const CATEGORIES: AssetCategory[] = [
 ];
 
 export const AssetListPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { hasPermission, hasRole } = useAuth();
 
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -56,6 +59,16 @@ export const AssetListPage: React.FC = () => {
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
   const [activeLabelData, setActiveLabelData] = useState<AssetQRLabel | null>(null);
+
+  // Auto-open QR scanner or set filter if query param provided
+  useEffect(() => {
+    if (searchParams.get('scan') === 'open') {
+      setIsScannerOpen(true);
+    }
+    if (searchParams.get('filter') === 'maintenance') {
+      setStatusFilter('Maintenance');
+    }
+  }, [searchParams]);
 
   // Register Asset Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -197,17 +210,17 @@ export const AssetListPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl font-bold text-slate-900">Municipal Asset Registry & QR Traceability</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">{t('assets.title')}</h1>
             <span className="text-xs bg-brand-50 text-brand-700 font-semibold px-2 py-0.5 rounded-full border border-brand-200">
               Module 7
             </span>
           </div>
-          <p className="text-sm text-slate-500 mt-1">
-            Physical asset inventory, optical QR code generation, camera scanning, and Pushkaralu 2027 operational readiness verification.
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            {t('assets.subtitle')}
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button
             type="button"
             variant="secondary"
@@ -215,7 +228,7 @@ export const AssetListPage: React.FC = () => {
             onClick={() => setIsScannerOpen(true)}
           >
             <QrCode className="w-4 h-4 text-brand-600" />
-            Scan QR Code
+            {t('assets.scanQrBtn')}
           </Button>
 
           {canManageAssets && (
@@ -226,7 +239,7 @@ export const AssetListPage: React.FC = () => {
               onClick={openCreateModal}
             >
               <Plus className="w-4 h-4" />
-              Register Asset
+              {t('assets.registerAsset')}
             </Button>
           )}
         </div>
@@ -306,7 +319,7 @@ export const AssetListPage: React.FC = () => {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by Asset Code, Name, Ghat, Serial Number..."
+              placeholder={t('assets.searchPlaceholder')}
               className="w-full pl-9 pr-24 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"
             />
             <Button
@@ -502,8 +515,17 @@ export const AssetListPage: React.FC = () => {
         </div>
       )}
 
-      {/* QR Scanner Modal */}
-      <QRScannerModal isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)} />
+      {/* QR Scanner Modal with clean query param reset */}
+      <QRScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => {
+          setIsScannerOpen(false);
+          if (searchParams.get('scan') === 'open') {
+            searchParams.delete('scan');
+            setSearchParams(searchParams, { replace: true });
+          }
+        }}
+      />
 
       {/* QR Printable Label Modal */}
       <QRLabelModal
