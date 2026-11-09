@@ -207,12 +207,12 @@ export const ProjectListPage: React.FC = () => {
             onChange={(e) => setCategory(e.target.value)}
             className="px-2.5 py-1.5 text-xs bg-[#FFFDF9] border border-borderLight rounded-lg text-textPrimary focus:ring-1 focus:ring-brand"
           >
-            <option value="">All Categories</option>
-            <option value="Drinking Water">Drinking Water</option>
-            <option value="Sanitation">Sanitation</option>
-            <option value="Public Lighting">Public Lighting</option>
-            <option value="Public Safety">Public Safety</option>
-            <option value="Pedestrian Access">Pedestrian Access</option>
+            <option value="">{t('projects.allCategories')}</option>
+            <option value="Drinking Water">{t('categories.drinkingWater')}</option>
+            <option value="Sanitation">{t('categories.sanitation')}</option>
+            <option value="Public Lighting">{t('categories.publicLighting')}</option>
+            <option value="Public Safety">{t('categories.publicSafety')}</option>
+            <option value="Pedestrian Access">{t('categories.pedestrianAccess')}</option>
           </select>
 
           {/* Ghat/Zone Filter */}
@@ -221,7 +221,7 @@ export const ProjectListPage: React.FC = () => {
             onChange={(e) => setZoneId(e.target.value)}
             className="px-2.5 py-1.5 text-xs bg-[#FFFDF9] border border-borderLight rounded-lg text-textPrimary focus:ring-1 focus:ring-brand"
           >
-            <option value="">All Ghats / Sectors</option>
+            <option value="">{t('projects.allGhats')}</option>
             {zones.map((z) => (
               <option key={z.id} value={z.id}>
                 {z.name}
@@ -235,11 +235,12 @@ export const ProjectListPage: React.FC = () => {
             onChange={(e) => setStatus(e.target.value)}
             className="px-2.5 py-1.5 text-xs bg-[#FFFDF9] border border-borderLight rounded-lg text-textPrimary focus:ring-1 focus:ring-brand"
           >
-            <option value="">All Statuses</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Verification Pending">Verification Pending</option>
-            <option value="Accepted">Accepted</option>
-            <option value="Delayed">Delayed</option>
+            <option value="">{t('dashboard.allStatuses')}</option>
+            <option value="In Progress">{t('common.inProgress')}</option>
+            <option value="Verification Pending">{t('common.pending')}</option>
+            <option value="Completed">{t('common.completed')}</option>
+            <option value="Critical Risk">{t('dashboard.statusCritical')}</option>
+            <option value="Delayed">{t('dashboard.statusDelayed')}</option>
           </select>
 
           <Button
@@ -248,7 +249,7 @@ export const ProjectListPage: React.FC = () => {
             icon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />}
             onClick={() => loadProjects()}
           >
-            Reload
+            {t('common.refresh')}
           </Button>
         </div>
       </div>
@@ -468,8 +469,8 @@ export const ProjectListPage: React.FC = () => {
       <Modal
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
-        title="Initiate Municipal Infrastructure Project"
-        description="Creates a new capital or event readiness work project under Godavari Pushkaralu 2027."
+        title={t('projects.createModalTitle')}
+        description={t('projects.createModalDesc')}
         maxWidth="lg"
       >
         <form onSubmit={handleCreateProject} className="space-y-4">
@@ -482,12 +483,12 @@ export const ProjectListPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-textPrimary mb-1">
-                Project Identifier (Unique Code)
+                {t('projects.identifier')}
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. PRJ-2027-DW05"
+                placeholder={t('projects.identifierPlaceholder')}
                 value={newIdentifier}
                 onChange={(e) => setNewIdentifier(e.target.value)}
                 className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-borderLight rounded-lg text-textPrimary uppercase font-mono"
@@ -495,26 +496,26 @@ export const ProjectListPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-textPrimary mb-1">Priority</label>
+              <label className="block text-xs font-semibold text-textPrimary mb-1">{t('projects.priority')}</label>
               <select
                 value={newPriority}
                 onChange={(e) => setNewPriority(e.target.value)}
                 className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-borderLight rounded-lg text-textPrimary"
               >
-                <option value="Critical">Critical</option>
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
+                <option value="Critical">{t('projects.critical')}</option>
+                <option value="High">{t('projects.high')}</option>
+                <option value="Medium">{t('projects.medium')}</option>
+                <option value="Low">{t('projects.low')}</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-textPrimary mb-1">Project Scheme Name</label>
+            <label className="block text-xs font-semibold text-textPrimary mb-1">{t('projects.schemeName')}</label>
             <input
               type="text"
               required
-              placeholder="e.g. Saraswati Ghat Emergency Evacuation Causeway"
+              placeholder={t('projects.schemeNamePlaceholder')}
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-borderLight rounded-lg text-textPrimary"
@@ -522,10 +523,10 @@ export const ProjectListPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-textPrimary mb-1">Description & Scope</label>
+            <label className="block text-xs font-semibold text-textPrimary mb-1">{t('projects.descScope')}</label>
             <textarea
               rows={2}
-              placeholder="Describe public-sector purpose, capacity, and critical facilities..."
+              placeholder={t('projects.descScopePlaceholder')}
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
               className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-borderLight rounded-lg text-textPrimary"
@@ -534,28 +535,28 @@ export const ProjectListPage: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-textPrimary mb-1">Category</label>
+              <label className="block text-xs font-semibold text-textPrimary mb-1">{t('assets.category')}</label>
               <select
                 value={newCat}
                 onChange={(e) => setNewCat(e.target.value)}
                 className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-borderLight rounded-lg text-textPrimary"
               >
-                <option value="Drinking Water">Drinking Water</option>
-                <option value="Sanitation">Sanitation</option>
-                <option value="Public Lighting">Public Lighting</option>
-                <option value="Public Safety">Public Safety</option>
-                <option value="Pedestrian Access">Pedestrian Access</option>
+                <option value="Drinking Water">{t('categories.drinkingWater')}</option>
+                <option value="Sanitation">{t('categories.sanitation')}</option>
+                <option value="Public Lighting">{t('categories.publicLighting')}</option>
+                <option value="Public Safety">{t('categories.publicSafety')}</option>
+                <option value="Pedestrian Access">{t('categories.pedestrianAccess')}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-textPrimary mb-1">Ghat / Zone Sector</label>
+              <label className="block text-xs font-semibold text-textPrimary mb-1">{t('projects.location')}</label>
               <select
                 value={newZoneId}
                 onChange={(e) => setNewZoneId(e.target.value)}
                 className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-borderLight rounded-lg text-textPrimary"
               >
-                <option value="">Select Bathing Ghat...</option>
+                <option value="">{t('projects.selectGhat')}</option>
                 {zones.map((z) => (
                   <option key={z.id} value={z.id}>
                     {z.name}
@@ -567,7 +568,7 @@ export const ProjectListPage: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-textPrimary mb-1">Start Date</label>
+              <label className="block text-xs font-semibold text-textPrimary mb-1">{t('projects.startDate')}</label>
               <input
                 type="date"
                 value={newStartDate}
@@ -577,7 +578,7 @@ export const ProjectListPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-textPrimary mb-1">Planned Completion Date</label>
+              <label className="block text-xs font-semibold text-textPrimary mb-1">{t('projects.plannedEndDate')}</label>
               <input
                 type="date"
                 value={newEndDate}
@@ -589,11 +590,11 @@ export const ProjectListPage: React.FC = () => {
 
           <div>
             <label className="block text-xs font-semibold text-textPrimary mb-1">
-              Funding / Budget Reference (Confidential)
+              {t('projects.fundingRef')}
             </label>
             <input
               type="text"
-              placeholder="e.g. AP-GODAVARI-2027-PW-044"
+              placeholder={t('projects.fundingRefPlaceholder')}
               value={newFunding}
               onChange={(e) => setNewFunding(e.target.value)}
               className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-borderLight rounded-lg text-textPrimary font-mono"
@@ -607,10 +608,10 @@ export const ProjectListPage: React.FC = () => {
               size="sm"
               onClick={() => setCreateModalOpen(false)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button type="submit" variant="primary" size="sm" isLoading={createLoading}>
-              Save & Create Project
+              {t('projects.saveCreate')}
             </Button>
           </div>
         </form>

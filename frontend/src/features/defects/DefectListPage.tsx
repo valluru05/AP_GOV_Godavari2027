@@ -583,11 +583,11 @@ export const DefectListPage: React.FC = () => {
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        title="Log Engineering Defect / Non-Conformance Ticket"
+        title={t('defects.createModalTitle')}
       >
         <form onSubmit={handleCreateSubmit} className="space-y-4 max-h-[80vh] overflow-y-auto pr-1">
           <p className="text-xs text-slate-500">
-            Formally record an infrastructure defect, hydraulic failure, or structural deficiency requiring contractor rework and independent quality certification.
+            {t('defects.createModalDesc')}
           </p>
 
           {formError && (
@@ -598,7 +598,7 @@ export const DefectListPage: React.FC = () => {
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Work Package *
+              {t('inspections.workPackageLabel')} *
             </label>
             <select
               value={formData.work_package_id}
@@ -616,7 +616,7 @@ export const DefectListPage: React.FC = () => {
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Defect Title *
+              {t('defects.defectTitleLabel')} *
             </label>
             <input
               type="text"
@@ -631,7 +631,7 @@ export const DefectListPage: React.FC = () => {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Category *
+                {t('defects.categoryLabel')} *
               </label>
               <select
                 value={formData.category}
@@ -649,7 +649,7 @@ export const DefectListPage: React.FC = () => {
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Severity Level *
+                {t('defects.severityLabel')} *
               </label>
               <select
                 value={formData.severity}
@@ -657,17 +657,17 @@ export const DefectListPage: React.FC = () => {
                 className="w-full text-xs border border-slate-200 rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 required
               >
-                <option value="Critical">Critical (Halts Readiness)</option>
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
+                <option value="Critical">{t('defects.critical')}</option>
+                <option value="High">{t('defects.high')}</option>
+                <option value="Medium">{t('defects.medium')}</option>
+                <option value="Low">{t('defects.low')}</option>
               </select>
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Target Resolution Date *
+              {t('defects.deadlineLabel')} *
             </label>
             <input
               type="date"
@@ -680,7 +680,7 @@ export const DefectListPage: React.FC = () => {
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Engineering Description & Deficiency Observations *
+              {t('defects.descriptionLabel')} *
             </label>
             <textarea
               rows={3}
@@ -694,7 +694,7 @@ export const DefectListPage: React.FC = () => {
 
           <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
             <label className="block text-xs font-semibold text-slate-700">
-              Attach Photographic Evidence (Optional)
+              {t('defects.evidenceLabel')}
             </label>
             <div className="grid grid-cols-2 gap-2">
               <input
@@ -720,14 +720,14 @@ export const DefectListPage: React.FC = () => {
               variant="secondary"
               onClick={() => setIsCreateModalOpen(false)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
               className="bg-[#174EA6] hover:bg-[#123e85] text-white"
               isLoading={creating}
             >
-              Log Defect Ticket
+              {t('defects.btnLogDefect')}
             </Button>
           </div>
         </form>

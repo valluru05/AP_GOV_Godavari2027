@@ -189,7 +189,7 @@ export const AppLayout: React.FC = () => {
       {/* ========================================================= */}
       {/* TOP HEADER: Government Identity & Pushkaralu 2027 Title  */}
       {/* ========================================================= */}
-      <header className="bg-white border-b border-[#E9DED2] sticky top-0 z-30 shadow-subtle">
+      <header className="bg-white border-b border-[#E9DED2] sticky top-0 z-50 shadow-subtle">
         <div className="px-2.5 sm:px-6 h-16 flex items-center justify-between relative">
           {/* Left: Hamburger + AP Seal + Godavari Pushkaralu Identity */}
           <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 z-10 min-w-0">
@@ -438,7 +438,7 @@ export const AppLayout: React.FC = () => {
 
         {/* Mobile Navigation Drawer: active on <1024px screens */}
         {mobileMenuOpen && (
-          <div className="fixed inset-0 z-50 flex lg:hidden">
+          <div className="fixed inset-0 z-[70] flex lg:hidden">
             {/* Backdrop Blur */}
             <div
               className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"

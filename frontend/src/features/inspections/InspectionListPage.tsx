@@ -545,11 +545,11 @@ export const InspectionListPage: React.FC = () => {
       <Modal
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
-        title="Schedule Field Verification Inspection"
+        title={t('inspections.scheduleModalTitle')}
       >
         <form onSubmit={handleScheduleSubmit} className="space-y-4">
           <p className="text-xs text-slate-500">
-            Dispatch an authorized field engineering inspector to physically audit and certify worksite deliverables at Godavari Pushkaralu ghats.
+            {t('inspections.scheduleModalDesc')}
           </p>
 
           {formError && (
@@ -560,7 +560,7 @@ export const InspectionListPage: React.FC = () => {
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Select Work Package *
+              {t('inspections.workPackageLabel')} *
             </label>
             <select
               value={scheduleData.work_package_id}
@@ -580,7 +580,7 @@ export const InspectionListPage: React.FC = () => {
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Inspection Type *
+              {t('inspections.status')} *
             </label>
             <select
               value={scheduleData.inspection_type}
@@ -601,7 +601,7 @@ export const InspectionListPage: React.FC = () => {
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Scheduled Field Date *
+              {t('inspections.scheduledDateLabel')} *
             </label>
             <input
               type="date"
@@ -616,7 +616,7 @@ export const InspectionListPage: React.FC = () => {
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Inspection Directives & Special Instructions
+              {t('inspections.auditScopeLabel')}
             </label>
             <textarea
               rows={3}
@@ -635,14 +635,14 @@ export const InspectionListPage: React.FC = () => {
               variant="secondary"
               onClick={() => setIsScheduleModalOpen(false)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
               className="bg-[#174EA6] hover:bg-[#123e85] text-white"
               isLoading={scheduling}
             >
-              Schedule Field Audit
+              {t('inspections.btnSchedule')}
             </Button>
           </div>
         </form>

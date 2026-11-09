@@ -205,6 +205,27 @@ export const AssetListPage: React.FC = () => {
     }
   };
 
+  const getCategoryLabel = (cat: string) => {
+    switch (cat) {
+      case 'Drinking-water units':
+        return t('categories.drinkingWaterUnits');
+      case 'Public lighting':
+        return t('categories.publicLightingUnits');
+      case 'Sanitation units':
+        return t('categories.sanitationUnits');
+      case 'River safety installation':
+        return t('categories.riverSafety');
+      case 'Signage':
+        return t('categories.signage');
+      case 'Waste collection facilities':
+        return t('categories.wasteCollection');
+      case 'Temporary shelters':
+        return t('categories.temporaryShelters');
+      default:
+        return cat;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -251,47 +272,47 @@ export const AssetListPage: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Total Assets</span>
+              <span className="text-xs font-semibold uppercase tracking-wider">{t('assets.totalAssets')}</span>
               <PackageCheck className="w-4 h-4 text-brand-600" />
             </div>
             <div className="text-2xl font-bold text-slate-900">{stats.total_assets}</div>
-            <div className="text-xs text-slate-400 mt-1">Across all Rajamahendravaram ghats</div>
+            <div className="text-xs text-slate-400 mt-1">{t('assets.totalAssetsSub')}</div>
           </div>
 
           <div className="bg-white p-4 rounded-xl border border-emerald-200 shadow-sm bg-gradient-to-br from-emerald-50/40 to-white">
             <div className="flex items-center justify-between text-emerald-700 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Operationally Ready</span>
+              <span className="text-xs font-semibold uppercase tracking-wider">{t('assets.operationallyReady')}</span>
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="text-2xl font-bold text-emerald-700">{stats.operationally_ready_count}</div>
-            <div className="text-xs text-emerald-600 mt-1">Fully verified & commissioned</div>
+            <div className="text-xs text-emerald-600 mt-1">{t('assets.operationallyReadySub')}</div>
           </div>
 
           <div className="bg-white p-4 rounded-xl border border-blue-200 shadow-sm">
             <div className="flex items-center justify-between text-blue-700 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Pending Inspection</span>
+              <span className="text-xs font-semibold uppercase tracking-wider">{t('assets.pendingInspection')}</span>
               <Clock className="w-4 h-4 text-blue-600" />
             </div>
             <div className="text-2xl font-bold text-blue-800">{stats.pending_verification_count}</div>
-            <div className="text-xs text-blue-600 mt-1">Installed, awaiting check</div>
+            <div className="text-xs text-blue-600 mt-1">{t('assets.pendingInspectionSub')}</div>
           </div>
 
           <div className="bg-white p-4 rounded-xl border border-rose-200 shadow-sm bg-gradient-to-br from-rose-50/40 to-white">
             <div className="flex items-center justify-between text-rose-700 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Verification Failed</span>
+              <span className="text-xs font-semibold uppercase tracking-wider">{t('assets.verificationFailed')}</span>
               <ShieldAlert className="w-4 h-4 text-rose-600" />
             </div>
             <div className="text-2xl font-bold text-rose-700">{stats.verification_failed_count}</div>
-            <div className="text-xs text-rose-600 mt-1">Blocked by active defects</div>
+            <div className="text-xs text-rose-600 mt-1">{t('assets.verificationFailedSub')}</div>
           </div>
 
           <div className="bg-white p-4 rounded-xl border border-amber-200 shadow-sm">
             <div className="flex items-center justify-between text-amber-800 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Maintenance Due</span>
+              <span className="text-xs font-semibold uppercase tracking-wider">{t('assets.maintenanceDue')}</span>
               <Wrench className="w-4 h-4 text-amber-600" />
             </div>
             <div className="text-2xl font-bold text-amber-800">{stats.maintenance_required_count}</div>
-            <div className="text-xs text-amber-700 mt-1">Scheduled / repair needed</div>
+            <div className="text-xs text-amber-700 mt-1">{t('assets.maintenanceDueSub')}</div>
           </div>
         </div>
       )}
@@ -303,10 +324,10 @@ export const AssetListPage: React.FC = () => {
         </div>
         <div className="text-xs leading-relaxed">
           <p className="font-bold text-sm text-white flex items-center gap-2">
-            Section 12 Statutory Mandate — Field-Verified Operational Readiness
+            {t('assets.statutoryTitle')}
           </p>
           <p className="text-blue-100 mt-1">
-            Under Pushkaralu 2027 accountability protocols, <strong className="text-white">no municipal asset is marked 'Operationally Ready'</strong> solely because its installation has been reported complete by a contractor. Operational readiness requires physical field verification by an independent inspector, zero unresolved critical defects, and official commissioning clearance.
+            {t('assets.statutoryDesc')}
           </p>
         </div>
       </div>
@@ -329,7 +350,7 @@ export const AssetListPage: React.FC = () => {
               size="sm"
               className="absolute right-1.5 top-1.5 text-xs h-7"
             >
-              Filter
+              {t('common.filter')}
             </Button>
           </form>
 
@@ -339,14 +360,14 @@ export const AssetListPage: React.FC = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="text-xs border border-slate-300 rounded-lg px-2.5 py-2 bg-white font-medium text-slate-700 focus:ring-2 focus:ring-brand-500 focus:outline-none"
             >
-              <option value="">All Lifecycle States</option>
-              <option value="Operationally Ready">Operationally Ready</option>
-              <option value="Verification Failed">Verification Failed</option>
-              <option value="Inspection Pending">Inspection Pending</option>
-              <option value="Maintenance Required">Maintenance Required</option>
-              <option value="Installed">Installed</option>
-              <option value="Accepted">Accepted</option>
-              <option value="Planned">Planned</option>
+              <option value="">{t('assets.allLifecycleStates')}</option>
+              <option value="Operationally Ready">{t('assets.operationallyReady')}</option>
+              <option value="Verification Failed">{t('assets.verificationFailed')}</option>
+              <option value="Inspection Pending">{t('assets.pendingInspection')}</option>
+              <option value="Maintenance Required">{t('assets.maintenanceDue')}</option>
+              <option value="Installed">{t('common.active')}</option>
+              <option value="Accepted">{t('common.completed')}</option>
+              <option value="Planned">{t('common.pending')}</option>
             </select>
 
             {(categoryFilter || statusFilter || search) && (
@@ -361,7 +382,7 @@ export const AssetListPage: React.FC = () => {
                   setSearch('');
                 }}
               >
-                Reset
+                {t('dashboard.resetFilters')}
               </Button>
             )}
           </div>
@@ -378,7 +399,7 @@ export const AssetListPage: React.FC = () => {
                 : 'bg-white border border-[#E9DED2] text-[#35251E] hover:bg-[#FAF4EC] hover:border-[#8F2D16]/40 shadow-subtle'
             }`}
           >
-            All Categories
+            {t('assets.allCategories')}
           </button>
           {CATEGORIES.map((cat) => {
             const isSelected = categoryFilter === cat;
@@ -394,7 +415,7 @@ export const AssetListPage: React.FC = () => {
                 }`}
               >
                 {getCategoryIcon(cat, isSelected)}
-                <span>{cat}</span>
+                <span>{getCategoryLabel(cat)}</span>
               </button>
             );
           })}
@@ -542,7 +563,7 @@ export const AssetListPage: React.FC = () => {
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        title="Register Physical Municipal Asset"
+        title={t('assets.registerModalTitle')}
       >
         <form onSubmit={handleCreateSubmit} className="space-y-4">
           {formError && (
@@ -553,14 +574,14 @@ export const AssetListPage: React.FC = () => {
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Asset Name <span className="text-rose-500">*</span>
+              {t('assets.assetNameLabel')} <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
               required
               value={createForm.name}
               onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
-              placeholder="e.g. 5000 LPH RO Drinking Water Kiosk"
+              placeholder={t('assets.assetNamePlaceholder')}
               className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"
             />
           </div>
@@ -568,7 +589,7 @@ export const AssetListPage: React.FC = () => {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Asset Category <span className="text-rose-500">*</span>
+                {t('assets.assetCategoryLabel')} <span className="text-rose-500">*</span>
               </label>
               <select
                 value={createForm.category}
@@ -577,7 +598,7 @@ export const AssetListPage: React.FC = () => {
               >
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>
-                    {c}
+                    {getCategoryLabel(c)}
                   </option>
                 ))}
               </select>
@@ -585,13 +606,13 @@ export const AssetListPage: React.FC = () => {
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Responsible Department
+                {t('assets.departmentLabel')}
               </label>
               <input
                 type="text"
                 value={createForm.department || ''}
                 onChange={(e) => setCreateForm({ ...createForm, department: e.target.value })}
-                placeholder="e.g. Municipal Public Health Wing"
+                placeholder={t('assets.departmentPlaceholder')}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"
               />
             </div>
@@ -600,27 +621,27 @@ export const AssetListPage: React.FC = () => {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Location / Ghat Name
+                {t('assets.locationGhatLabel')}
               </label>
               <input
                 type="text"
                 value={createForm.location_name || ''}
                 onChange={(e) => setCreateForm({ ...createForm, location_name: e.target.value })}
-                placeholder="e.g. Kotilingala Ghat — North Sector"
+                placeholder={t('assets.locationGhatPlaceholder')}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Linked Project
+                {t('assets.linkedProjectLabel')}
               </label>
               <select
                 value={createForm.project_id || ''}
                 onChange={(e) => setCreateForm({ ...createForm, project_id: e.target.value })}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"
               >
-                <option value="">None / Unlinked</option>
+                <option value="">{t('assets.noneUnlinked')}</option>
                 {projects.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
@@ -633,26 +654,26 @@ export const AssetListPage: React.FC = () => {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Serial Number
+                {t('assets.serialNumberLabel')}
               </label>
               <input
                 type="text"
                 value={createForm.serial_number || ''}
                 onChange={(e) => setCreateForm({ ...createForm, serial_number: e.target.value })}
-                placeholder="e.g. SN-RO-2026-9812"
+                placeholder={t('assets.serialNumberPlaceholder')}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-brand-500 focus:outline-none"
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Model Number
+                {t('assets.modelNumberLabel')}
               </label>
               <input
                 type="text"
                 value={createForm.model_number || ''}
                 onChange={(e) => setCreateForm({ ...createForm, model_number: e.target.value })}
-                placeholder="e.g. Kirloskar-RO-5K"
+                placeholder={t('assets.modelNumberPlaceholder')}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-brand-500 focus:outline-none"
               />
             </div>
@@ -660,13 +681,13 @@ export const AssetListPage: React.FC = () => {
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Description & Engineering Specifications
+              {t('assets.specificationsLabel')}
             </label>
             <textarea
               rows={2}
               value={createForm.description || ''}
               onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
-              placeholder="Capacity, materials, power consumption, installation requirements..."
+              placeholder={t('assets.specificationsPlaceholder')}
               className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"
             />
           </div>
@@ -678,10 +699,10 @@ export const AssetListPage: React.FC = () => {
               onClick={() => setIsCreateModalOpen(false)}
               disabled={creating}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button type="submit" variant="primary" disabled={creating}>
-              {creating ? 'Registering...' : 'Register Asset & Generate QR'}
+              {creating ? t('common.loading') : t('assets.saveRegisterAsset')}
             </Button>
           </div>
         </form>
