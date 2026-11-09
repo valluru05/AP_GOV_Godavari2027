@@ -199,6 +199,8 @@ const hi = {
     btnSchedule: 'क्षेत्र ऑडिट निर्धारित करें',
     allOutcomes: 'सभी परिणाम',
     allTypes: 'सभी प्रकार',
+    inspectionType: 'निरीक्षण प्रकार',
+    selectWorkPackage: 'कार्य पैकेज / संपत्ति चुनें...',
   },
   defects: {
     title: 'दोष, सुधारात्मक कार्रवाई एवं पुनर्निर्माण',

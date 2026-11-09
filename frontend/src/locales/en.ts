@@ -199,6 +199,8 @@ const en = {
     btnSchedule: 'Schedule Field Audit',
     allOutcomes: 'All Outcomes',
     allTypes: 'All Types',
+    inspectionType: 'Inspection Type',
+    selectWorkPackage: 'Select Work Package / Asset...',
   },
   defects: {
     title: 'Defects, Corrective Actions & Rework',

@@ -339,6 +339,28 @@ class ApiClient {
     });
   }
 
+  async getWorkPackages(params: { category?: string; status?: string } = {}): Promise<any[]> {
+    try {
+      const searchParams = new URLSearchParams();
+      if (params.category) searchParams.set('category', params.category);
+      if (params.status) searchParams.set('status', params.status);
+      const qs = searchParams.toString();
+      return await this.request<any[]>(`/projects/work-packages${qs ? `?${qs}` : ''}`);
+    } catch {
+      const prjs = await this.getProjects();
+      const details = await Promise.all(
+        prjs.slice(0, 15).map((p) => this.getProjectDetail(p.id).catch(() => null))
+      );
+      const allWps: any[] = [];
+      details.forEach((d) => {
+        if (d?.work_packages) {
+          allWps.push(...d.work_packages);
+        }
+      });
+      return allWps;
+    }
+  }
+
   async createWorkPackage(projectId: string, payload: any): Promise<any> {
     return this.request<any>(`/projects/${projectId}/work-packages`, {
       method: 'POST',

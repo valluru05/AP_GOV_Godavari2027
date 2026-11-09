@@ -278,6 +278,23 @@ def create_project(
     )
 
 
+@router.get("/work-packages", response_model=List[WorkPackageResponse])
+def list_all_work_packages(
+    category: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Retrieves all work packages across all municipal projects."""
+    query = db.query(WorkPackage)
+    if category:
+        query = query.filter(WorkPackage.category == category)
+    if status:
+        query = query.filter(WorkPackage.workflow_state == status)
+    wps = query.order_by(WorkPackage.work_id.asc()).all()
+    return [serialize_work_package(w) for w in wps]
+
+
 @router.get("/{project_id}", response_model=ProjectDetail)
 def get_project_detail(
     project_id: str,

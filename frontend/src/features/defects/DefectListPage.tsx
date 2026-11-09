@@ -88,13 +88,7 @@ export const DefectListPage: React.FC = () => {
   const openCreateModal = async () => {
     try {
       setFormError('');
-      const prjList = await api.getProjects();
-      const wps: WorkPackage[] = [];
-      prjList.forEach((p: any) => {
-        if (p.work_packages) {
-          wps.push(...p.work_packages);
-        }
-      });
+      const wps = await api.getWorkPackages();
       setAllWorkPackages(wps);
       if (wps.length > 0) {
         setFormData((prev) => ({ ...prev, work_package_id: wps[0].id }));
@@ -102,6 +96,7 @@ export const DefectListPage: React.FC = () => {
       setIsCreateModalOpen(true);
     } catch (err: any) {
       console.error('Failed to load work packages:', err);
+      setIsCreateModalOpen(true);
     }
   };
 
@@ -606,6 +601,7 @@ export const DefectListPage: React.FC = () => {
               className="w-full text-xs border border-slate-200 rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
             >
+              <option value="">{t('inspections.selectWorkPackage')}</option>
               {allWorkPackages.map((wp) => (
                 <option key={wp.id} value={wp.id}>
                   {wp.work_id} — {wp.title} ({wp.category})

@@ -199,6 +199,8 @@ const te = {
     btnSchedule: 'క్షేత్ర తనిఖీని షెడ్యూల్ చేయండి',
     allOutcomes: 'అన్ని ఫలితాలు',
     allTypes: 'అన్ని రకాలు',
+    inspectionType: 'తనిఖీ రకం',
+    selectWorkPackage: 'వర్క్ ప్యాకేజీ / ఆస్తిని ఎంచుకోండి...',
   },
   defects: {
     title: 'లోపాలు, దిద్దుబాటు చర్యలు & పునర్నిర్మాణం',

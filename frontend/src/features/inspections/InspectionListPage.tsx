@@ -83,20 +83,15 @@ export const InspectionListPage: React.FC = () => {
   const openScheduleModal = async () => {
     try {
       setFormError('');
-      const prjList = await api.getProjects();
-      const wps: WorkPackage[] = [];
-      prjList.forEach((p: any) => {
-        if (p.work_packages) {
-          wps.push(...p.work_packages);
-        }
-      });
+      const wps = await api.getWorkPackages();
       setAllWorkPackages(wps);
       if (wps.length > 0) {
         setScheduleData((prev) => ({ ...prev, work_package_id: wps[0].id }));
       }
       setIsScheduleModalOpen(true);
     } catch (err: any) {
-      console.error('Failed to load projects for scheduling:', err);
+      console.error('Failed to load work packages for scheduling:', err);
+      setIsScheduleModalOpen(true);
     }
   };
 
@@ -570,6 +565,7 @@ export const InspectionListPage: React.FC = () => {
               className="w-full text-xs border border-slate-200 rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
             >
+              <option value="">{t('inspections.selectWorkPackage')}</option>
               {allWorkPackages.map((wp) => (
                 <option key={wp.id} value={wp.id}>
                   {wp.work_id} — {wp.title} ({wp.category})
@@ -580,7 +576,7 @@ export const InspectionListPage: React.FC = () => {
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              {t('inspections.status')} *
+              {t('inspections.inspectionType')} *
             </label>
             <select
               value={scheduleData.inspection_type}
