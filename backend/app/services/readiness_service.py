@@ -33,7 +33,7 @@ def build_readiness_chain(db: Session, work_package_id: str) -> ReadinessChainRe
     project = wp.project
     vendor = wp.vendor
     milestones = db.query(Milestone).filter(Milestone.work_package_id == wp.id).order_by(Milestone.due_date).all()
-    inspections = db.query(Inspection).filter(Inspection.work_package_id == wp.id).order_by(desc(Inspection.actual_inspection_date)).all()
+    inspections = db.query(Inspection).filter(Inspection.work_package_id == wp.id).order_by(Inspection.actual_inspection_date.desc().nullslast(), desc(Inspection.created_at)).all()
     defects = db.query(Defect).filter(Defect.work_package_id == wp.id).order_by(desc(Defect.created_at)).all()
     submissions = db.query(ProgressSubmission).filter(ProgressSubmission.work_package_id == wp.id).order_by(desc(ProgressSubmission.created_at)).all()
     assets = db.query(Asset).filter(Asset.work_package_id == wp.id).all()
